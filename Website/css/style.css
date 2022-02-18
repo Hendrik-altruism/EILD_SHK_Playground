@@ -50,8 +50,10 @@ body{
     text-decoration: underline;
 }
 
-#bilder{
-    border: 2px solid #345678;
+.out{
+    background-color: white;
+    padding: 20px 100px;
+    color: black;  
 }
 
 .bottomHead{

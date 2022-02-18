@@ -18,16 +18,29 @@
                 </ul>
             </nav>
             <div class="top">
-                <h1 class="headline">Wilkommen zur Testseite für Datenbanken</h1>
+                <h1 id="title" class="headline">Wilkommen zur Testseite für Datenbanken</h1>
             </div>
         </header>
         <main> 
             <section class="all" id="datenbank">
-                <h2 class="headline2">Datenbank</h2>
+                <h2 class="headline2">Operationen</h2>
+                <form class="form">
+                    <div>
+                        <input type="text" id="tut" placeholder="Neues Objeckt">
+                        <input type="text" id="tutUp" name="Altes" placeholder="Altes Objekt">
+                        <p></p>
+                        <button id="button1">Insert</button>
+                        <button id="button2">Delete</button>
+                        <button id="button3">Update</button>
+                    </div>
+                </form>
             </section>
             <section class="all" id="bilder">
-                <h2 class="headline2">Schema</h2>
-                <img src="img/009.jpg">
+                <h2 class="headline2">Ausgabe</h2>
+                <form class="form">
+                    <button id="refresh">Refresh</button>
+                    <p class="out" id="output"></p>
+                </form>
             </section>
             <section class="all" id="weiteres">
                 <h2 class="headline2">Weiteres</h2>
@@ -42,8 +55,7 @@
                 </ul>
             </nav>
         </footer>
-        <script src=js/default.js text="text/javascript">
-            
-        </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src=js/default.js text="text/javascript"></script>
     </body>
 </html>
