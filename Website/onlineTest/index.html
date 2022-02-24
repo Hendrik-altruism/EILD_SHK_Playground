@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="ISO-8859-1">
-<title>Web SQL</title> 
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="layout.css">
+    <title>Web SQL</title> 
 </head> 
 <body onload="init()">
-
+    <header>
+        <div class="top">
+            <h1 id="title" class="headline">Wilkommen zur Testseite für Datenbanken</h1>
+        </div>
+    </header>
     <div id="result"></div>
     <br>
     <fieldset>
@@ -26,20 +31,29 @@
                         <input type="button" value="Add" onclick="add()">
                         <input type="button" value="Save" onclick="save()">
                         <input type="hidden" id="id" value="">
+                        <input type="button" value="Clear Table" onclick="drop()">
+                        <input type="button" value="Create Table" onclick="init()">
                     </td>
                 </tr>
             </table>
         </form>
     </fieldset>
 
-    <script type="text/javascript">
+    <script text="text/javascript">
+
         var db = openDatabase('mytasks', '1.0', 'My Tasks', 5*1024*1024);
 
         function init(){
             db.transaction(function (tx){
-                tx.executeSql('CREATE TABLE IF NOT EXISTES works (id integer primary key autoincrement, name text, description text)');
-            });
+                tx.executeSql('CREATE TABLE IF NOT EXISTS works (id integer primary key autoincrement, name text, description text)');
+                });
             displayAll();
+        }
+
+        function drop(){
+            db.transaction(function (tx){
+                tx.executeSql('DROP TABLE works',[], displayAll());
+            });
         }
 
         function displayAll(){
@@ -63,43 +77,39 @@
             });
         }
 
-        function add(){
-            db.transaction(function (tx){
-                var name = document.getElementById('workName').value;
-                var description = document.getElementById('description').value;
-                tx.executeSql('insert into works(name, description) values(?, ?)', [name, description], displayAll());
-            });
-        }
+function add(){
+    db.transaction(function (tx){
+        var name = document.getElementById('workName').value;
+        var description = document.getElementById('description').value;
+        tx.executeSql('insert into works(name, description) values(?, ?)', [name, description], displayAll());
+    });
+}
 
-        function del(id){
-            db.transaction(function (tx){
-                var result = confirm('Bist du dir sicher ?');
-                if(result == true){
-                    tx.executeSql('delete from works where id = ?', [id], displayAll());
-                }
-            });
-        }
+function del(id){
+    db.transaction(function (tx){
+        tx.executeSql('delete from works where id = ?', [id], displayAll());
+    });
+}
 
-        function edit(id){
-            db.transaction(function (tx){              
-                tx.executeSql('select * from works where id = ?', [id], function(tx, results){
-                    var work = results.rows.item(0);
-                    document.getElementById('id').value = work.id;
-                    document.getElementById('workName').value = work.name;
-                    document.getElementById('description').value = work.description;
-                });
-            });
-        }
+function edit(id){
+    db.transaction(function (tx){              
+        tx.executeSql('select * from works where id = ?', [id], function(tx, results){
+            var work = results.rows.item(0);
+            document.getElementById('id').value = work.id;
+            document.getElementById('workName').value = work.name;
+            document.getElementById('description').value = work.description;
+        });
+    });
+}
 
-        function save(){
-            db.transaction(function (tx){
-                var id = document.getElementById('id').value;
-                var name = document.getElementById('workName').value;
-                var description = document.getElementById('description').value;
-                tx.executeSql('update works set name = ?, description = ? where id = ?', [name, description, id], displayAll());
-            });
-        }
+function save(){
+    db.transaction(function (tx){
+        var id = document.getElementById('id').value;
+        var name = document.getElementById('workName').value;
+        var description = document.getElementById('description').value;
+        tx.executeSql('update works set name = ?, description = ? where id = ?', [name, description, id], displayAll());
+    });
+}
     </script>
-
 </body>   
 </html>
