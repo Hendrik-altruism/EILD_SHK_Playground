@@ -1,13 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>IndexedDB demo</title>
-</head>
-<body>
-    <h1>Testseite für IndexedDB</h1>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">    
+    <title>CombinedTest</title> 
+</head> 
+<body onload="init()">
+    <header>
+        <div class="top">
+            <h1 id="title" class="headline">Wilkommen zur Testseite für Datenbanken</h1>
+        </div>
+    </header>
+    <p></p>
+    <h2>Web SQL</h2>
+    <div id="result"></div>
+    <br>
+    <fieldset>
+        <legend>Interaktions</legend>
+        <form>
+            <table cellpadding="2" cellspacing="2">
+                <tr>
+                    <td>Name</td>
+                    <td><input type="text" id="workName"></td>
+                </tr>
+                <tr>
+                    <td valign="top">Description</td>
+                    <td><textarea rows="5" cols="20" id="description"></textarea></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <input type="button" value="Add" onclick="add()">
+                        <input type="button" value="Save" onclick="save()">
+                        <input type="hidden" id="id" value="">
+                        <input type="button" value="Drop Table" onclick="drop()">
+                        <input type="button" value="Create Table" onclick="init()">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </fieldset>
+
+    <p></p>
+
+    <h2>Local Storage</h2>
+    
+    <div class="container">
+        <input class="storage" type="text">
+        <p class="text">Text</p>
+        <button class="button">Save</button>
+    </div>
+
+    <p></p>
+    
+    <h2>IndexedDB</h2>
+
     DB<input type = 'text' value = 'notes' id = 'txtDB'>
     Version <input type = 'text' value = '1' id = 'txtVersion'>
     <button id = 'btnCreateDB'>Create DB</button>
@@ -89,6 +139,8 @@
         }
        
     </script>
-    
-</body>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src=script.js text="text/javascript"></script>
+</body>   
 </html>

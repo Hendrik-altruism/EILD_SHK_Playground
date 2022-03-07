@@ -1,0 +1,20 @@
+*{
+    font-family: 'Roboto', sans-serif;
+}
+
+#container {
+    width:400px;
+    height:120px;
+    float:left;
+}
+#result {
+    width:500px;
+    height:160px;
+    float:right;
+}
+
+#results {
+    width:500px;
+    height:160px;
+    float:right;
+}

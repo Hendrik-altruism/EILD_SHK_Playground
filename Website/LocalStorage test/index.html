@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>LocalStorage</title>
+</head>
+
+<body>
+    <div>
+        <h1>Testsite LocalStorage and SessionStorage</h1>
+    </div>
+    <br>
+    <fieldset>
+        <h2>LocalStorage</h2>
+        <div id="wrapper">
+            <div id="container" class="containerLocal">
+                <input class="storageLocalKey" type="text" placeholder="Primary Key">
+                <input class="storageLocal" type="text" placeholder="Value">
+                <p class="keyLocal">Key</p>
+                <p class="textLocal">Text</p>
+                <button class="addButtonLocal">Save</button>
+                <button class="deleteButtonLocal">Delete</button>
+                <button class="clearButtonLocal">Clear</button>
+            </div>
+            <div id="result" align="right"></div>
+        </div>
+    </fieldset>
+    <br>
+    <fieldset>
+        <h2>SessionStorage</h2>
+        <div id="wrapper">
+        <div id="container" class="containerSession">
+            <input class="storageSessionKey" type="text" placeholder="Primary key">
+            <input class="storageSession" type="text" placeholder="Value">
+            <p class="keySession">Text</p>
+            <p class="textSession">Text</p>
+            <button class="addButtonSession">Save</button>
+            <button class="deleteButtonSession">Delete</button>
+            <button class="clearButtonSession">Clear</button>
+        </div>
+        <div id="results" align="right"></div>
+        </div>
+    </fieldset>
+</body>
+</html>
+
+<script src="main.js"></script>
