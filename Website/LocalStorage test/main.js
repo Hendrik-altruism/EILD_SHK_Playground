@@ -26,7 +26,7 @@ const saveToLocalStorage = () => {
 }
 
 const deleteFromLocalStorage = () => {
-    localStorage.removeItem(keyLocal.textContent + ": " + textLocal.textContent)
+    localStorage.removeItem(keyLocal.textContent)
     updateView()
 }
 
@@ -82,7 +82,7 @@ const saveToSessionStorage = () => {
 }
 
 const deleteFromSessionStorage = () => {
-    sessionStorage.removeItem(keySession.textContent + ": " + textSession.textContent)
+    sessionStorage.removeItem(keySession.textContent)
     updateViewSession()
 }
 

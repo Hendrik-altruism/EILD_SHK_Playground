@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="layout.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Datenbank</h2>
+    <div class="total">
+        <div class="column">
+            <div id="eingaben">
+                <input type='text' id='friendName' placeholder="Name">
+                <input type='number' id='friendAge' placeholder="Alter">
+                <input type='text' id='txtVersion' placeholder="Version">
+                <p></p>
+                <button onclick="add()" id='btnAddNote'>Eintrag hinzufügen</button>
+                <button id='btnDeleteNote'>Eintrag löschen</button>
+                <button id='btnViewNotes'>Eintrag anzeigen</button>
+            </div>
+            <p>
+                <a id="exportLink" href="#">Datenbank exportieren</a>
+            </p>
+            <div id="dropzone">
+                Datenbank einfügen
+            </div>
+            <p></p>
+        </div>
+        <p></p>
+        <div class="export">
+            <table border="1">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dexie/2.0.4/dexie.min.js'></script>
+    <script src='https://unpkg.com/dexie-export-import/dist/dexie-export-import.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/downloadjs/1.4.8/download.min.js'></script>
+    <script src="https://unpkg.com/webdav@4.8.0/web/index.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

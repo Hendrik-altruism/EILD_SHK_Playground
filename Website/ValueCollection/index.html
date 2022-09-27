@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="layout.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Datenbank</h2>
+    <div class="total">
+        <div class="column">
+            <div id="eingaben">
+                <input class="input-data" type='text' id='InputStudID' placeholder="StudentenID">
+                <input class="input-data" type='text' id='InputCorrect' placeholder="Ergebnis">
+                <input class="input-data" type='text' id='InputKey' placeholder="Schlüssel">
+                <p></p>
+                <button class="btn" onclick="getUpdated()" id='btnData'>Daten anzeigen</button>
+                <button class="btn" onclick="findPhrase()" id='btnFindPhrase'>Phrasen ausgeben</button>
+                <button class="btn" onclick="findUser()" id='btnFindUser'>Nutzer ausgeben</button>
+                <button class="btn" onclick="updateRun()" id='btnUpdateRun'>Eintrag ändern</button>
+            </div>
+        </div>
+        <p></p>
+        <div class="export">
+            <table border="1">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="popup">
+        <div class="popup-content">
+            <input class="input-data" type="text" id='StudData' placeholder="StudTag">
+            <input class="input-data" type="password" id='StudPw' placeholder="Password">
+            <button class="btn" onclick="login()">Login</a>
+        </div>
+    </div>
+
+    <script src='recources/dexie.min.js'></script>
+    <script src='recources/indexed.index.js'></script>
+    <script src="recources/web.index.js"></script>
+    <script src="recources/download.min.js"></script>
+    <script src="direct.js"></script>
+</body>
+
+</html>

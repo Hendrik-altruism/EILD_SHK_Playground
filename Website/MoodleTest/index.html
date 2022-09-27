@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <h2>Datenbank</h2>
+    <div class="total">
+        <div class="column">
+            <div id="eingaben">
+                <input class="input-data" type='text' id='InputStudID' placeholder="StudentenID">
+                <input class="input-data" type='number' id='InputPoints' placeholder="Punkte">
+                <input class="input-data" type='number' id='RunID' placeholder="Durchlauf">
+                <p></p>
+                <button class="btn" onclick="addRun()" id='btnAddRun'>Eintrag hinzufügen</button>
+                <button class="btn" onclick="deleteRun()" id='btnDeleteRun'>Eintrag löschen</button>
+                <button class="btn" onclick="updateRun()" id='btnUpdateRun'>Eintrag ändern</button>
+                <button class="btn" onclick="clearRun()" id='btnClearRuns'>Datenbank leeren</button>
+            </div>
+        </div>
+        <p></p>
+        <div class="export">
+            <table border="1">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div id="myImg"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

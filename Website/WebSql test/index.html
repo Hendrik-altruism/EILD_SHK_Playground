@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">    
-    <title>Web SQL</title> 
-</head> 
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <title>Web SQL</title>
+</head>
+
 <body onload="init()">
     <header>
         <div class="top">
-            <h1 id="title" class="headline">Wilkommen zur Testseite für Datenbanken</h1>
+            <h1 id="title" class="headline">Welcome to the Testsite for Web SQL</h1>
         </div>
     </header>
     <div id="result"></div>
     <br>
     <fieldset>
-        <legend>Interaktions</legend>
+        <legend>Interactions</legend>
         <form>
             <table cellpadding="2" cellspacing="2">
                 <tr>
@@ -41,8 +43,16 @@
             </table>
         </form>
     </fieldset>
+    <div class="popup">
+        <div class="popup-content">
+            <input class="login" type="text" placeholder="StudTag">
+            <input class="login" type="password" placeholder="Password">
+            <button onclick="login()">Login</a>
+        </div>
+    </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src=basic.js text="text/javascript"></script>
-</body>   
+</body>
+
 </html>
