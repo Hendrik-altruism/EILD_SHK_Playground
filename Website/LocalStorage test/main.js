@@ -8,6 +8,8 @@ const addButtonLocal = document.querySelector('.addButtonLocal')
 const deleteButtonLocal = document.querySelector('.deleteButtonLocal')
 const clearButtonLocal = document.querySelector('.clearButtonLocal')
 
+var key = "Hund_Schferhund_Mops_Dackel__p_n"
+
 
 updateView()
 

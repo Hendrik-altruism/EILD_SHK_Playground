@@ -1,0 +1,76 @@
+<?xml version="1.0" standalone="no" ?>
+<manifest identifier="eild.scorm.er_rel_trainer" version="1">
+    <metadata>
+        <schema>ADL SCORM</schema>
+        <schemaversion>1.2</schemaversion>
+    </metadata>
+    <organizations default="er_rel_trainer">
+        <organization identifier="er_rel_trainer">
+            <title>ER-REL-Trainer</title>
+            <item identifier="item_1" identifierref="resource_1">
+                <title>ER-REL-Trainer</title>
+            </item>
+        </organization>
+    </organizations>
+    <resources>
+        <resource identifier="resource_1" type="webcontent" href="index.html">
+            <file href="ccm.er_rel_trainer.js"/>
+            <file href="configs.js"/>
+            <file href="resources/modal.css"/>
+            <file href="resources/styles.css"/>
+            <file href="resources/templates.js"/>
+            <file href="resources/img/logos.jpg"/>
+            <file href="resources/img/abrial/1.svg"/>
+            <file href="resources/img/abrial/c.svg"/>
+            <file href="resources/img/abrial/cn.svg"/>
+            <file href="resources/img/abrial/e.svg"/>
+            <file href="resources/img/abrial/n.svg"/>
+            <file href="resources/img/abrial/r.svg"/>
+            <file href="resources/img/abrial/s.svg"/>
+            <file href="resources/img/arrow/1.svg"/>
+            <file href="resources/img/arrow/c.svg"/>
+            <file href="resources/img/arrow/cn.svg"/>
+            <file href="resources/img/arrow/e.svg"/>
+            <file href="resources/img/arrow/n.svg"/>
+            <file href="resources/img/arrow/r.svg"/>
+            <file href="resources/img/chen/1.svg"/>
+            <file href="resources/img/chen/c.svg"/>
+            <file href="resources/img/chen/cn.svg"/>
+            <file href="resources/img/chen/e.svg"/>
+            <file href="resources/img/chen/n.svg"/>
+            <file href="resources/img/chen/r.svg"/>
+            <file href="resources/img/crow/1.svg"/>
+            <file href="resources/img/crow/c.svg"/>
+            <file href="resources/img/crow/cn.svg"/>
+            <file href="resources/img/crow/e.svg"/>
+            <file href="resources/img/crow/n.svg"/>
+            <file href="resources/img/crow/r.svg"/>
+            <file href="resources/img/mc/1.svg"/>
+            <file href="resources/img/mc/c.svg"/>
+            <file href="resources/img/mc/cn.svg"/>
+            <file href="resources/img/mc/e.svg"/>
+            <file href="resources/img/mc/n.svg"/>
+            <file href="resources/img/mc/r.svg"/>
+            <file href="resources/img/uml/1.svg"/>
+            <file href="resources/img/uml/c.svg"/>
+            <file href="resources/img/uml/cn.svg"/>
+            <file href="resources/img/uml/e.svg"/>
+            <file href="resources/img/uml/n.svg"/>
+            <file href="resources/img/uml/r.svg"/>
+            <file href="libs/bootstrap-4/css/bootstrap.css"/>
+            <file href="libs/bootstrap-5/css/bootstrap.css"/>
+            <file href="libs/bootstrap-5/css/bootstrap-fonts.css"/>
+            <file href="libs/bootstrap-5/fonts/bootstrap-icons.woff"/>
+            <file href="libs/bootstrap-5/fonts/bootstrap-icons.woff2"/>
+            <file href="libs/ccm/ccm.js"/>
+            <file href="libs/ccm/helper.js"/>
+            <file href="libs/lang/ccm.lang.js"/>
+            <file href="libs/lang/resources/styles.css"/>
+            <file href="libs/lang/resources/templates.js"/>
+            <file href="libs/lit/lit.js"/>
+            <file href="libs/modal/ccm.modal.js"/>
+            <file href="libs/modal/resources/styles.css"/>
+            <file href="libs/modal/resources/templates.js"/>
+        </resource>
+    </resources>
+</manifest>

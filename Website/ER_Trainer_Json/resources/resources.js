@@ -35,11 +35,17 @@ export const config = {
     const results = event.instance.getValue();
 
     const phrase = results.phrases[event.phrase - 2];
-    phrase.key = event.instance.helper.toKey(phrase.entities.concat(phrase.relation, phrase.solution).join('_'));
+    var numb=0
+    for(var i=0;i<phrases.length;i++){
+      if(phrases[i].text==phrase.text){
+        console.log(i)
+        numb=i
+      }
+    }
+    phrase.key=numb;
+    insertRun(results)
 
     results.sections.pop();
-    console.log(results)
-    insertRun(results)
     event.instance.helper.onFinish({
       store: {
         settings: { name: 'eild' },

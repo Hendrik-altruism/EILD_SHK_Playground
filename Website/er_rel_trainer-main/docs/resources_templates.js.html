@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<title>ER-REL Trainer Source: resources/templates.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	<link type="text/css" rel="stylesheet" href="styles/site.cerulean.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top navbar-inverse">
+<div class="container">
+	<div class="navbar-header">
+		<a class="navbar-brand" href="index.html">ER-REL Trainer</a>
+		<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#topNavigation">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+        </button>
+	</div>
+	<div class="navbar-collapse collapse" id="topNavigation">
+		<ul class="nav navbar-nav">
+			
+			<li class="dropdown">
+				<a href="namespaces.list.html" class="dropdown-toggle" data-toggle="dropdown">Namespaces<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="AppEvents.html">AppEvents</a></li><li><a href="WebComponent.html">WebComponent</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="modules.list.html" class="dropdown-toggle" data-toggle="dropdown">Modules<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="module-AppConfig.html">AppConfig</a></li><li><a href="module-HTMLTemplates.html">HTMLTemplates</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="WebComponent.Instance.html">WebComponent.Instance</a></li>
+				</ul>
+			</li>
+			
+			<li class="dropdown">
+				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
+				<ul class="dropdown-menu inline">
+					<li><a href="global.html">Global</a></li>
+				</ul>
+			</li>
+			
+		</ul>
+        
+            <div class="col-sm-3 col-md-3">
+                <form class="navbar-form" role="search">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search" name="q" id="search-input">
+                        <div class="input-group-btn">
+                            <button class="btn btn-default" id="search-submit"><i class="glyphicon glyphicon-search"></i></button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        
+	</div>
+
+</div>
+</div>
+
+
+<div class="container" id="toc-content">
+<div class="row">
+
+	
+	<div class="col-md-12">
+	
+		<div id="main">
+			
+
+		<h1 class="page-title">Source: resources/templates.js</h1>
+    
+<section>
+    <article>
+        <pre
+            class="sunlight-highlight-javascript linenums">/**
+ * @overview HTML templates of &lt;i>ccmjs&lt;/i>-based web component for ER-REL Trainer.
+ * @author André Kless &lt;andre.kless@web.de> 2021-2022
+ */
+
+import { html, render } from './../libs/lit/lit.js';
+export { render };
+
+/**
+ * HTML templates of &lt;i>ccmjs&lt;/i>-based web component for ER-REL Trainer.
+ * @module HTMLTemplates
+ */
+
+/**
+ * Returns the main HTML template.
+ * @function
+ * @param {object} app - App instance.
+ * @param {boolean} [show_solution] - Reveal main solution.
+ * @returns {*}
+ */
+export function main( app, show_solution ) {
+
+  /**
+   * App state data
+   * @type {app_state}
+   */
+  const data = app.getValue();
+
+  /**
+   * Data of the notation in the ER diagram
+   * @type {notation_data}
+   */
+  const notation = app.notations[ data.notation ];
+
+  /**
+   * Current phrase number
+   * @type {number}
+   */
+  const phrase_nr = data.results.length;
+
+  /**
+   * Data of the current phrase
+   * @type {phrase_data}
+   */
+  const phrase = data.phrases[ phrase_nr - 1 ];
+
+  /**
+   * Result data of the current phrase
+   * @type {result_data}
+   */
+  const result = data.results[ phrase_nr - 1 ];
+
+  /**
+   * ER diagram shows a binary relation
+   * @type {boolean}
+   */
+  const is_binary = phrase.entities.length === 2;
+
+  /**
+   * ER diagram shows a recursive binary relation
+   * @type {boolean}
+   */
+  const is_recursive = is_binary &amp;&amp; phrase.entities[ 0 ] === phrase.entities[ 1 ] &amp;&amp; !notation.mirrored;
+
+  /**
+   * ER diagram shows an one-to-one (1:1, 1:c, c:1 or c:c) relation
+   * @type {boolean}
+   */
+  const is_single = !phrase.solution.find( value => value !== '1' &amp;&amp; value !== 'c' );
+
+  /**
+   * ER diagram shows an many-to-many (n:n, cn:n, n:cn or cn:cn) relation
+   * @type {boolean}
+   */
+  const is_multi = !phrase.solution.find( value => value !== 'cn' &amp;&amp; value !== 'n' );
+
+  /**
+   * ER diagram shows an one-to-many (1:n, c:n, 1:cn or c:cn) relation
+   * @type {boolean}
+   */
+  const is_many = is_binary &amp;&amp; !is_single &amp;&amp; !is_multi;
+
+  /**
+   * ER diagram shows a generalisation/specialisation relation
+   * @type {boolean}
+   */
+  const is_hierarchy = !phrase.relation;
+
+  /**
+   * Bit mask for arrows
+   * @type {number}
+   */
+  const arrows_mask = 15872;
+
+  /**
+   * Bit mask for foreign keys
+   * @type {number}
+   */
+  const fk_mask = 496;
+
+  /**
+   * Translation index for the heading ('heading', 'correct' or 'failed')
+   * @type {string}
+   */
+  const heading = result.correct === undefined ? 'main_heading' : 'feedback_' + ( result.correct ? 'correct' : 'failed' );
+
+  return html`
+    &lt;div class="d-flex justify-content-between align-items-center">
+      &lt;h1 class="mx-3" data-lang="main_title">${ app.text.main_title }&lt;/h1>
+      &lt;aside>&lt;/aside>
+    &lt;/div>
+    &lt;header class="bg-light border rounded-top d-flex flex-wrap justify-content-between align-items-center p-2">
+
+      &lt;!-- Heading -->
+      &lt;div id="heading" class="p-2 pe-3" data-lang="${ heading }">${ app.text[ heading ] }&lt;/div>
+
+      &lt;div class="d-flex align-items-center text-nowrap px-2" ?data-hidden=${ app.fixed_notation }>
+
+        &lt;!-- Notation Selection -->
+        &lt;section>
+          &lt;div class="d-flex align-items-center">
+            &lt;label for="notation-input" class="m-0">&lt;b data-lang="main_notation">${ app.text.main_notation }&lt;/b>&lt;/label>
+            &lt;select id="notation-input" class="form-select ms-2" @change=${ event => app.events.onNotation( event.target.value ) }>
+              ${ Object.values( app.notations ).sort( ( a, b ) =>
+                a.title.localeCompare( b.title ) ).map( ( { key, title } ) =>
+                  html`&lt;option value="${ key }" ?disabled=${ !is_binary &amp;&amp; app.notations[ key ].swap } ?selected=${ data.notation === key }>${ title }&lt;/option>`
+              ) }
+            &lt;/select>
+          &lt;/div>
+        &lt;/section>
+
+        &lt;!-- Legend -->
+        &lt;section class="ms-2" ?data-hidden=${ !app.legend }>
+          &lt;button class="btn btn-link" @click=${ app.events.onLegend } data-lang="legend">${ app.text.legend }&lt;/button>
+        &lt;/section>
+
+      &lt;/div>
+    &lt;/header>
+    &lt;main class="border rounded-bottom border-top-0 px-4 py-2 text-nowrap">
+      &lt;div>
+
+        &lt;!-- Phrase -->
+        &lt;section class="lead px-2 py-3" ?data-hidden=${ !phrase.text }>
+          &lt;b>
+            &lt;span data-lang="main_phrase">${ app.text.main_phrase }&lt;/span>&lt;span ?data-hidden=${ app.phrases.length === 1 }> ${ phrase_nr }/${ app.number }&lt;/span>:
+          &lt;/b>
+          &lt;span class="text-wrap">${ phrase.text }&lt;/span>
+        &lt;/section>
+
+        &lt;!-- Diagram and Tables -->
+        ${ diagram() }
+        &lt;hr>
+        ${ scheme() }
+        
+        &lt;!-- Correct Solution -->
+        &lt;div ?data-hidden=${ !app.feedback || !app.show_solution || !show_solution || result.correct === undefined }>
+          &lt;hr>
+          &lt;div class="lead text-center pt-2" data-lang="feedback_solution">${ app.text.feedback_solution }&lt;/div>
+          ${ app.feedback &amp;&amp; app.show_solution &amp;&amp; show_solution &amp;&amp; result.correct !== undefined ? scheme( true ) : '' }
+        &lt;/div>
+
+        &lt;hr>
+
+        &lt;!-- Comments During Input -->
+        &lt;section ?data-hidden=${ !( app.comments &amp;&amp; app.comments.input &amp;&amp; result.correct === undefined ) }>
+          ${ comment( 'create_tables', !result.input.find( ( table, i ) => table !== null &amp;&amp; !( i === 2 &amp;&amp; is_recursive ) ) ) }
+          ${ comment( 'decide_null', result.input.find( table => table &amp;&amp; table.find( attr => attr &amp; 508 &amp;&amp; !( attr &amp; 3 ) ) ) ) }
+          ${ comment( 'connect_tables', result.input.find( ( table, i ) => table !== null &amp;&amp; !table.find( attr => attr &amp; fk_mask ) &amp;&amp; !result.input.find( ( table, j ) => i !== j &amp;&amp; isConnected( i, j ) ) ) ) }
+          ${ comment( 'set_arrows', result.input.find( ( table, i ) => table !== null &amp;&amp; table.find( ( attr, j ) => i !== j &amp;&amp; attr &amp; fk_mask &amp;&amp; result.input[ j ] &amp;&amp; !( attr &amp; 1 &lt;&lt; ( 4 + j + 5 ) ) &amp;&amp; !( result.input[ j ][ i ] &amp; 1 &lt;&lt; ( 4 + i + 5 ) ) ) ) ) }
+        &lt;/section>
+
+        &lt;!-- Comments on Wrong Solution -->
+        &lt;section ?data-hidden=${ !( app.comments &amp;&amp; app.comments.wrong &amp;&amp; result.correct === false ) }>
+          
+          &lt;!-- Wrong Tables -->
+          ${ comment( 'missing_entity_table', result.input.find( ( table, i ) => i &amp;&amp; !table &amp;&amp; !( i === 2 &amp;&amp; is_recursive ) ) !== undefined ) }
+          ${ comment( 'missing_relation_table', is_multi &amp;&amp; !result.input[ 0 ] ) }
+          ${ comment( 'not_needed_relation_table', !is_multi &amp;&amp; result.input[ 0 ] ) }
+          
+          &lt;!-- Wrong Primary Keys -->
+          ${ comment( 'missing_pk', result.input.find( table => table &amp;&amp; !table.find( attr => attr &amp; 1 &lt;&lt; 2 ) ) ) }
+          ${ comment( 'pk_not_null', result.input.find( table => table &amp;&amp; table.find( attr => attr &amp; 1 &lt;&lt; 2 &amp;&amp; !( attr &amp; 1 &lt;&lt; 1 ) ) ) ) }
+          ${ comment( 'wrong_pk', result.input.find( ( table, i ) => table &amp;&amp; i &amp;&amp; table.find( ( attr, j ) => attr &amp; 1 &lt;&lt; 2 &amp;&amp; i !== j ) ) ) }
+          ${ comment( 'nm_pk', is_multi &amp;&amp; result.input[ 0 ] &amp;&amp; ( result.input[ 0 ][ 0 ] &amp; 1 &lt;&lt; 2 || result.input[ 0 ].find( ( attr, i ) => i &amp;&amp; !( attr &amp; 1 &lt;&lt; 2 ) ) ) ) }
+          
+          &lt;!-- Wrong Foreign Keys -->
+          ${ comment( '1c_fk', phrase.solution.toString() === '1,c' &amp;&amp; result.input[ 1 ] &amp;&amp; !( result.input[ 1 ][ 2 ] &amp; 64 ) || phrase.solution.toString() === 'c,1' &amp;&amp; result.input[ 2 ] &amp;&amp; !( result.input[ 2 ][ 1 ] &amp; 32 ) ) }
+          ${ comment( '1n_fk', is_many &amp;&amp; result.input.find( ( table, i ) => i &amp;&amp; table &amp;&amp; !phrase.solution[ i - 1 ].includes( 'n' ) &amp;&amp; !( table[ i === 1 ? 2 : 1 ] &amp; 1 &lt;&lt; ( 4 + ( i === 1 ? 2 : 1 ) ) ) ) ) }
+          ${ comment( 'nm_fk', is_multi &amp;&amp; result.input[ 0 ] &amp;&amp; result.input[ 0 ].find( ( attr, i ) => i ? !( attr &amp; 1 &lt;&lt; ( 4 + i ) ) : attr &amp; 1 &lt;&lt; ( 4 + i ) ) ) }
+          ${ comment( 'hierarchy_fk', is_hierarchy &amp;&amp; result.input.find( ( table, i ) => i > 1 &amp;&amp; table &amp;&amp; !( table[ 1 ] &amp; ( 1 &lt;&lt; 5 ) ) ) ) }
+          ${ comment( 'not_null_fk', !( is_many &amp;&amp; ( phrase.solution.includes( 'c' ) || phrase.solution.toString() === 'c,c' ) ) &amp;&amp; !is_multi &amp;&amp; result.input.find( ( table, i ) => table &amp;&amp; table.find( ( attr, j ) => attr &amp; fk_mask &amp;&amp; ( attr &amp; fk_mask ) === ( ( result.solution &amp;&amp; result.solution[ i ] &amp;&amp; result.solution[ i ][ j ] ) &amp; fk_mask ) &amp;&amp; attr &amp; 1 ) ) ) }
+          ${ comment( 'null_fk', is_many &amp;&amp; ( phrase.solution.includes( 'c' ) || phrase.solution.toString() === 'c,c' ) &amp;&amp; ( () => {
+            const left = phrase.solution[ 0 ] === 'c';
+            const table = result.input[ left ? 1 : 2 ];
+            const attr = table &amp;&amp; table[ left ? 2 : 1 ];
+            const fk = left ? 64 : 32;
+            return attr &amp; fk &amp;&amp; attr &amp; 2;
+          } )() ) }
+
+          &lt;!-- Wrong Alternate Key -->
+          ${ comment( 'ak', is_hierarchy &amp;&amp; result.input.find( ( table, i ) => i > 1 &amp;&amp; table &amp;&amp; table[ 1 ] &amp; ( 1 &lt;&lt; 5 ) &amp;&amp; !( table[ 1 ] &amp; 1 &lt;&lt; 3 ) ) || is_single &amp;&amp; ( () => {
+            const c1 = phrase.solution.toString() === 'c,1';
+            const table = result.input[ c1 ? 2 : 1 ];
+            const attr = table &amp;&amp; table[ c1 ? 1 : 2 ];
+            const fk = c1 ? 32 : 64;
+            return attr &amp; fk &amp;&amp; !( attr &amp; 8 );
+          } )() ) }
+          
+        &lt;/section>
+        
+        &lt;!-- Comments on Correct Solution -->
+        &lt;section ?data-hidden=${ !( app.comments &amp;&amp; app.comments.correct &amp;&amp; result.correct === true ) }>
+          ${ comment( 'alternate_solution', !!result.alternate_solution ) }
+          ${ comment( 'mandatory', ( () => {
+            switch ( phrase.solution.toString() ) {
+              case '1,1':
+              case '1,n':
+              case 'n,1':
+              case 'c,n':
+              case 'n,c':
+                return true;
+            }
+            return false;
+          } )() ) }
+          ${ comment( 'total', is_hierarchy &amp;&amp; phrase.solution[ 0 ] === 't' ) }
+          ${ comment( 'disjoint', is_hierarchy &amp;&amp; phrase.solution[ 1 ] === 'd' ) }
+        &lt;/section>
+
+        &lt;!-- Buttons -->
+        &lt;section id="buttons" class="d-flex justify-content-center flex-wrap px-2 py-3">
+          &lt;button id="submit" type="submit" form="scheme" class="btn btn-primary m-1" ?disabled=${ result.correct !== undefined } data-lang="btn_submit">${ app.text.btn_submit }&lt;/input>
+          &lt;button id="correction" class="btn btn-primary m-1" @click=${ app.events.onCorrection } ?data-hidden=${ !app.correction } ?disabled=${ result.correct !== false || show_solution } data-lang="btn_correction">${ app.text.btn_correction }&lt;/button>
+          &lt;button id="solution" class="btn btn-primary m-1" @click=${ app.events.onSolution } ?data-hidden=${ !app.show_solution } ?disabled=${ result.correct === undefined || show_solution } data-lang="btn_solution">${ app.text.btn_solution }&lt;/button>
+          &lt;button id="next" class="btn btn-primary m-1" @click=${ app.events.onNext } ?disabled=${ !app.skip &amp;&amp; result.correct === undefined || phrase_nr === app.number } data-lang="btn_${ app.skip &amp;&amp; result.correct === undefined ? 'skip' : 'next' }">${ app.text[ 'btn_' + ( app.skip &amp;&amp; result.correct === undefined ? 'skip' : 'next' ) ] }&lt;/button>
+          &lt;button id="finish" class="btn btn-primary m-1" @click=${ app.events.onFinish } ?disabled=${ !app.onfinish || !app.skip &amp;&amp; result.correct === undefined || !app.anytime_finish &amp;&amp; phrase_nr &lt; app.number } data-lang="btn_finish">${ app.text.btn_finish }&lt;/button>
+        &lt;/section>
+
+      &lt;/div>
+    &lt;/main>
+    
+    &lt;!-- Logos -->
+    &lt;aside class="mx-3 mt-3 text-center">
+      &lt;img src="./resources/img/logos.jpg">
+    &lt;/aside>
+  `;
+
+  /**
+   * Returns the HTML template for the ER diagram.
+   * @returns {*}
+   */
+  function diagram() {
+    return html`
+      &lt;section class="diagram px-2 py-4">
+        &lt;div class="text-center lead">
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ entity( phrase.relation ? 3 : 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ phrase.relation ? connection( 3 ) : line( 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+
+          ${ phrase.relation ? entity( 1 ) : line( 0 ) }
+          ${ phrase.relation ? connection( 1 ) : line( 0 ) }
+          &lt;div id="relation">
+            &lt;img src="${ notation.images[ phrase.relation ? 5 : 6 ] }">
+            &lt;div ?data-centered=${ notation.centered } ?data-triangle=${ !phrase.relation }>
+              ${ phrase.relation || html`
+                &lt;div data-lang="hierarchy_${ phrase.solution[ 0 ] }">${ app.text[ 'hierarchy_' + phrase.solution[ 0 ] ] }&lt;/div>
+                &lt;div data-lang="hierarchy_${ phrase.solution[ 1 ] }">${ app.text[ 'hierarchy_' + phrase.solution[ 1 ] ] }&lt;/div>
+              ` || '' }
+            &lt;/div>
+          &lt;/div>
+          ${ phrase.relation ? connection( 2 ) : line( 0 ) }
+          ${ phrase.relation ? ( is_recursive ? line( 1 ) : entity( 2 ) ) : line( 0 ) }
+
+          ${ line( is_recursive ? 4 : ( phrase.relation ? 0 : 6 ) ) }
+          ${ line( is_recursive ? 3 : ( phrase.relation ? 0 : 5 ) ) }
+          ${ is_recursive ? line( 3 ) : ( phrase.relation ? connection( 4 ) : line( 8 ) ) }
+          ${ line( is_recursive ? 3 : ( phrase.relation ? 0 : 5 ) ) }
+          ${ line( is_recursive ? 2 : ( phrase.relation ? 0 : 7 ) ) }
+
+          ${ line( phrase.relation ? 0 : 1 ) }
+          &lt;div>&lt;/div>
+          ${ line( phrase.relation || phrase.entities.length &lt; 4 ? 0 : 1 ) }
+          &lt;div>&lt;/div>
+          ${ line( phrase.relation ? 0 : 1 ) }
+
+          ${ entity( phrase.relation ? 0 : 2 ) }
+          &lt;div>&lt;/div>
+          ${ entity( phrase.relation ? 4 : ( phrase.entities.length > 3 ? 3 : 4 ) ) }
+          &lt;div>&lt;/div>
+          ${ entity( phrase.relation ? 0 : ( phrase.entities.length > 3 ? 4 : 3 ) ) }
+        &lt;/div>
+      &lt;/section>
+    `;
+
+    /**
+     * Returns the HTML template for an entity connection.
+     * @param {entity_nr} [entity] - Entity number
+     * @returns {*}
+     */
+    function connection( entity ) {
+      return entity ? html`
+        &lt;div class="${ entity > 2 ? 'vertical' : '' }">
+          &lt;img class="${ entity === 1 &amp;&amp; notation.mirrored ? 'mirrored' : '' }" src="${ notation.images[ [ '1', 'c', 'n', 'cn' ].indexOf( phrase.solution[ notation.swap ? ( entity > 1 ? 0 : 1 ) : entity - 1 ] ) + 1 ] }" ?data-hidden=${ !phrase.entities[ entity - 1 ] }>
+        &lt;/div>
+      ` : html`&lt;div>&lt;/div>`;
+    }
+
+    /**
+     * Returns the HTML template for an entity.
+     * @param {entity_nr} [nr] - Entity number
+     * @returns {*}
+     */
+    function entity( nr ) {
+      return phrase.entities[ nr - 1 ] ? html`
+        &lt;div class="entity p-3">
+          ${ phrase.entities[ nr - 1 ] }
+        &lt;/div>
+      ` : html`&lt;div>&lt;/div>`;
+    }
+
+    /**
+     * Returns the HTML template for a connection line.
+     * @param {number} [nr] - Line number
+     * @returns {*}
+     */
+    function line( nr ) {
+      if ( !nr ) return html`&lt;div>&lt;/div>`;
+      if ( nr === 8 ) return html`
+        &lt;div class="line8">
+          &lt;svg viewBox="0 0 240 60">
+            &lt;line x1="0" y1="59" x2="90" y2="59" stroke="black" stroke-width="2"/>
+            &lt;line x1="90" y1="0" x2="90" y2="60" stroke="black" stroke-width="2"/>
+            &lt;line x1="120" y1="0" x2="120" y2="60" stroke="${ phrase.entities.length &lt; 4 ? 'transparent' : 'black' }" stroke-width="2"/>
+            &lt;line x1="150" y1="0" x2="150" y2="60" stroke="black" stroke-width="2"/>
+            &lt;line x1="150" y1="59" x2="240" y2="59" stroke="black" stroke-width="2"/>
+          &lt;/svg>
+        &lt;/div>
+      `;
+      return html`&lt;div class="line${ nr }">&lt;/div>`;
+    }
+
+  }
+
+  /**
+   * Returns the HTML template for the relation scheme tables.
+   * @param {boolean} [is_solution] - Scheme shows the solution
+   * @returns {*}
+   */
+  function scheme( is_solution ) {
+
+    /**
+     * State in which the tables are displayed.
+     * @type {table_data[]}
+     */
+    const input = is_solution ? result.solution : result.input;
+
+    /**
+     * Main solution with which the tables are compared for the automated feedback.
+     * @type {table_data[]}
+     */
+    const solution = !is_solution &amp;&amp; ( result.alternate_solution || result.solution );
+
+    return html`
+      &lt;form id="scheme" @submit=${ event => { event.preventDefault(); !is_solution &amp;&amp; app.events.onSubmit(); } }>
+        &lt;section class="tables px-2 py-4">
+          ${ is_recursive &amp;&amp; recursive()
+          || is_binary &amp;&amp; binary()
+          || is_hierarchy &amp;&amp; ( phrase.entities.length === 3 ? hierarchy_3() : hierarchy_4() )
+          || ( phrase.entities.length === 3 ? multi_3() : multi_4() ) }
+        &lt;/section>
+      &lt;/form>
+    `;
+
+    /**
+     * Returns the HTML template for the scheme tables of a binary relation.
+     * @returns {*}
+     */
+    function binary() {
+      return html`
+        &lt;div class="binary">
+          ${ table( 1 ) }
+          ${ arrow( 'l', 2, 1 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ arrow( 'r', 1, 2 ) }
+          ${ table( 2 ) }
+
+          ${ arrow( 'u', 0, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 2 ) }
+
+          ${ connection( 'ur', 1, 0 ) }
+          ${ arrow( 'r', 1, 0 ) }
+          ${ table( 0 ) }
+          ${ arrow( 'l', 2, 0 ) }
+          ${ connection( 'ul', 2, 0 ) }
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for the scheme tables of a recursive binary relation.
+     * @returns {*}
+     */
+    function recursive() {
+      return html`
+        &lt;div class="recursive">
+          ${ connection( 'rd', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'dl', 1, 2 ) }
+          &lt;div>&lt;/div>
+
+          ${ arrow( 'd', 1, 2 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+
+          ${ table( 1 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'ul', 1, 2 ) }
+          &lt;div>&lt;/div>
+
+          ${ arrow( 'u', 0, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+
+          ${ connection( 'ur', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ arrow( 'r', 1, 0 ) }
+          ${ table( 0 ) }
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for the scheme tables of a many-to-many relation with 3 entities.
+     * @returns {*}
+     */
+    function multi_3() {
+      return html`
+        &lt;div class="multi-3">
+          ${ connection( 'rd', 1, 3 ) }
+          ${ connection( 'h', 1, 3 ) }
+          ${ arrow( 'r', 1, 3 ) }
+          ${ table( 3 ) }
+          ${ arrow( 'l', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'dl', 2, 3 ) }
+
+          ${ connection( 'v', 1, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 3 ) }
+
+          ${ arrow( 'd', 3, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 2 ) }
+
+          ${ table( 1 ) }
+          ${ arrow( 'l', 0, 1 ) }
+          ${ arrow( 'r', 1, 0 ) }
+          ${ table( 0 ) }
+          ${ arrow( 'l', 2, 0 ) }
+          ${ arrow( 'r', 0, 2 ) }
+          ${ table( 2 ) }
+
+          ${ arrow( 'u', 2, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 1, 2 ) }
+
+          ${ connection( 'ur', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'ul', 1, 2 ) }
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for the scheme tables of a many-to-many relation with 4 entities.
+     * @returns {*}
+     */
+    function multi_4() {
+      return html`
+        &lt;div class="multi-4">
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'rd', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'dl', 3, 4 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 4, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 3, 4 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'rd', 1, 3 ) }
+          ${ connection( 'h', 1, 3 ) }
+          ${ arrow( 'r', 1, 3 ) }
+          ${ table( 3 ) }
+          ${ arrow( 'l', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'dl', 2, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 3, 4 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 3, 4 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'rd', 1, 2 ) }
+          ${ arrow( 'r', 2, 1 ) }
+          ${ table( 1 ) }
+          ${ arrow( 'l', 0, 1 ) }
+          ${ arrow( 'r', 1, 0 ) }
+          ${ table( 0 ) }
+          ${ arrow( 'l', 2, 0 ) }
+          ${ arrow( 'r', 0, 2 ) }
+          ${ table( 2 ) }
+          ${ arrow( 'l', 1, 2 ) }
+          ${ connection( 'dl', 1, 2 ) }
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 4, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 4, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 4, 2 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 0, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'ur', 1, 4 ) }
+          ${ connection( 'h', 1, 4 ) }
+          ${ arrow( 'r', 1, 4 ) }
+          ${ table( 4 ) }
+          ${ arrow( 'l', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'ul', 2, 4 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 3, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          ${ connection( 'v', 3, 4 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'ur', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'h', 3, 4 ) }
+          ${ connection( 'x', 1, 2, 3, 4 ) }
+          ${ connection( 'ul', 3, 4 ) }
+
+          ${ connection( 'ur', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ connection( 'ul', 1, 2 ) }
+          &lt;div>&lt;/div>
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for the scheme tables of a generalisation/specialisation relation with 3 entities.
+     * @returns {*}
+     */
+    function hierarchy_3() {
+      return html`
+        &lt;div class="multi-3">
+          ${ connection( 'rd', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ arrow( 'r', 2, 1 ) }
+          ${ table( 1 ) }
+          ${ arrow( 'l', 3, 1 ) }
+          ${ connection( 'h', 1, 3 ) }
+          ${ connection( 'dl', 1, 3 ) }
+
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 3 ) }
+
+          ${ arrow( 'd', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 1, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 1, 3 ) }
+
+          ${ table( 2 ) }
+          ${ arrow( 'l', 0, 2 ) }
+          ${ arrow( 'r', 2, 0 ) }
+          ${ table( 0 ) }
+          ${ arrow( 'l', 3, 0 ) }
+          ${ arrow( 'r', 0, 3 ) }
+          ${ table( 3 ) }
+
+          ${ arrow( 'u', 3, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 2, 3 ) }
+
+          ${ connection( 'ur', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'h', 2, 3 ) }
+          ${ connection( 'ul', 2, 3 ) }
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for the scheme tables of a generalisation/specialisation relation with 4 entities.
+     * @returns {*}
+     */
+    function hierarchy_4() {
+      return html`
+        &lt;div class="multi-4">
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'rd', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'dl', 1, 0 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 0, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 0 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'rd', 1, 2 ) }
+          ${ connection( 'h', 1, 2 ) }
+          ${ arrow( 'r', 2, 1 ) }
+          ${ table( 1 ) }
+          ${ arrow( 'l', 4, 1 ) }
+          ${ connection( 'h', 1, 4 ) }
+          ${ connection( 'dl', 1, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 0 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 3, 1 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 0 ) }
+
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 1, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 1, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 1, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'rd', 2, 4 ) }
+          ${ arrow( 'r', 4, 2 ) }
+          ${ table( 2 ) }
+          ${ arrow( 'l', 3, 2 ) }
+          ${ arrow( 'r', 2, 3 ) }
+          ${ table( 3 ) }
+          ${ arrow( 'l', 4, 3 ) }
+          ${ arrow( 'r', 3, 4 ) }
+          ${ table( 4 ) }
+          ${ arrow( 'l', 2, 4 ) }
+          ${ connection( 'dl', 2, 4 ) }
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 2 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 3 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 0, 4 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 4 ) }
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'd', 3, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 4, 0 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 4 ) }
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'ur', 2, 0 ) }
+          ${ connection( 'h', 2, 0 ) }
+          ${ arrow( 'r', 2, 0 ) }
+          ${ table( 0 ) }
+          ${ arrow( 'l', 4, 0 ) }
+          ${ connection( 'h', 4, 0 ) }
+          ${ connection( 'ul', 4, 0 ) }
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 4 ) }
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ arrow( 'u', 1, 0 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'v', 2, 4 ) }
+          ${ connection( 'v', 1, 0 ) }
+
+          ${ connection( 'v', 2, 4 ) }
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          &lt;div>&lt;/div>
+          ${ connection( 'ur', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'h', 1, 0 ) }
+          ${ connection( 'x', 2, 4, 1, 0 ) }
+          ${ connection( 'ul', 1, 0 ) }
+
+          ${ connection( 'ur', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'h', 2, 4 ) }
+          ${ connection( 'ul', 2, 4 ) }
+          &lt;div>&lt;/div>
+        &lt;/div>
+      `;
+    }
+
+    /**
+     * Returns the HTML template for a scheme table.
+     * @param {table_nr} table - Table number
+     * @returns {*}
+     */
+    function table( table ) {
+
+      /**
+       * Input data for table attributes
+       * @type {number[]}
+       */
+      const input_table = input[ table ] &amp;&amp; input[ table ].map( attr => attr &amp; ~arrows_mask );
+
+      /**
+       * Solution data for table attributes
+       * @type {number[]}
+       */
+      const solution_table = solution &amp;&amp; solution[ table ] &amp;&amp; solution[ table ].map( attr => attr &amp; ~arrows_mask );
+
+      // Table not created? => Render 'add table' button
+      if ( !input_table )
+        return html`
+          &lt;div>
+            &lt;button type="button" class="btn btn-${ solution ? ( solution_table === input_table ? 'success' : 'danger' ) : 'primary' } btn-sm text-nowrap" ?data-hidden=${ is_solution } ?disabled=${ solution } @click=${ () => app.events.onAddTable( table ) }>+ &lt;span data-lang="main_table">${ app.text.main_table }&lt;/span>: "&lt;span data-lang="${ table || phrase.relation ? '' : 'hierarchy_is' }">${ table ? phrase.entities[ table - 1 ] : phrase.relation || app.text.hierarchy_is }&lt;/span>"&lt;/button>
+          &lt;/div>
+        `;
+
+      // Table created? => Render table
+      return html`
+        &lt;div class="box border text-nowrap bg-${ solution ? ( solution_table &amp;&amp; solution_table.toString() === input_table.toString() ? 'success' : 'danger' ) : 'white' }">
+          
+          &lt;!-- Table Header -->
+          &lt;header class="bg-${ solution ? ( !!solution_table === !!input_table ? 'success' : 'danger' ) : 'light' } border-bottom p-2 d-flex justify-content-center align-items-center">
+            
+            &lt;!-- Edit Attributes Icon -->
+            &lt;span class="icon d-flex align-items-center" ?data-invisible=${ solution } @click=${ () => app.events.onEditTable( table ) }>
+              &lt;svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-primary" viewBox="0 0 16 16">
+                &lt;path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+              &lt;/svg>
+            &lt;/span>
+            
+            &lt;!-- Table Name -->
+            &lt;span class="mx-2">${ getTableName( app, phrase, table ) }&lt;/span>
+
+            &lt;!-- Remove Table Icon -->
+            &lt;span class="icon d-flex align-items-center" ?data-invisible=${ solution || is_solution } @click=${ () => app.events.onRemoveTable( table ) }>
+              &lt;svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="text-danger" viewBox="0 0 16 16">
+                &lt;path d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"/>
+              &lt;/svg>
+            &lt;/span>
+            
+          &lt;/header>
+          
+          &lt;!-- Table Body -->
+          &lt;main>
+            
+            &lt;!-- Table Attributes -->
+            &lt;div class="p-1">
+              ${ input_table.map( ( value, i ) => attr( i ) ) }
+            &lt;/div>
+            
+            &lt;!-- Composed Primary Key -->
+            ${ key( 'pk' ) }
+            
+            &lt;!-- Composed Alternate Key -->
+            ${ key( 'ak' ) }
+            
+          &lt;/main>
+          
+        &lt;/div>
+      `;
+
+      /**
+       * Returns the HTML template for a table attribute.
+       * @param {number} i - Attribute index in the table
+       * @returns {*}
+       */
+      function attr( i ) {
+
+        /**
+         * Current bit mask of the table attribute.
+         * @type {number}
+         */
+        const input_attr = input_table[ i ];
+
+        /**
+         * Bit mask of the solution for the table attribute.
+         * @type {number}
+         */
+        const solution_attr = solution &amp;&amp; solution_table &amp;&amp; solution_table[ i ];
+
+        return html`
+          &lt;div class="${ solution ? 'bg-' + ( solution_attr === input_attr ? 'success' : 'danger' ) + ' ' : '' }rounded d-flex align-items-center px-1" ?data-hidden=${ !input_attr }>
+            &lt;span class="me-1">${ getAttributeName( app, phrase, i ) }&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 2 ) === ( input_attr &amp; 1 &lt;&lt; 2 ) ? 'success' : 'danger' ) : 'primary' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 2 ) || input_table.filter( value => value &amp; 1 &lt;&lt; 2 ).length > 1 }>${ app.text.badge_pk }&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 3 ) === ( input_attr &amp; 1 &lt;&lt; 3 ) ? 'success' : 'danger' ) : 'success' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 3 ) || input_table.filter( value => value &amp; 1 &lt;&lt; 3 ).length > 1 }>${ app.text.badge_ak }&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 4 ) === ( input_attr &amp; 1 &lt;&lt; 4 ) ? 'success' : 'danger' ) : 'warning' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 4 ) }>${ app.text.badge_fk }0&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 5 ) === ( input_attr &amp; 1 &lt;&lt; 5 ) ? 'success' : 'danger' ) : 'warning' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 5 ) }>${ app.text.badge_fk }1&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 6 ) === ( input_attr &amp; 1 &lt;&lt; 6 ) ? 'success' : 'danger' ) : 'warning' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 6 ) }>${ app.text.badge_fk }2&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 7 ) === ( input_attr &amp; 1 &lt;&lt; 7 ) ? 'success' : 'danger' ) : 'warning' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 7 ) }>${ app.text.badge_fk }3&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 8 ) === ( input_attr &amp; 1 &lt;&lt; 8 ) ? 'success' : 'danger' ) : 'warning' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 8 ) }>${ app.text.badge_fk }4&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 0 ) === ( input_attr &amp; 1 &lt;&lt; 0 ) ? 'success' : 'danger' ) : 'light' } ${ solution ? '' : 'text-dark' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 0 ) }>${ app.text.badge_opt }&lt;/span>
+            &lt;span class="badge bg-${ solution ? ( ( solution_attr &amp; 1 &lt;&lt; 1 ) === ( input_attr &amp; 1 &lt;&lt; 1 ) ? 'success' : 'danger' ) : 'light' } ${ solution ? '' : 'text-dark' } ms-1" ?data-hidden=${ !( input_attr &amp; 1 &lt;&lt; 1 ) }>${ app.text.badge_man }&lt;/span>
+          &lt;/div>
+        `;
+      }
+
+      /**
+       * Returns the HTML template for a composite key.
+       * @param {string} id - Key ID ('pk' or 'ak')
+       * @returns {*}
+       */
+      function key( id ) {
+        let bit, color;
+        switch ( id ) {
+          case 'pk': bit = 4; color = 'primary'; break;
+          case 'ak': bit = 8; color = 'success'; break;
+        }
+        return html`
+          &lt;div class="border-top px-2 py-1 d-flex" ?data-hidden=${ input_table.filter( value => value &amp; bit ).length &lt; 2 }>
+            &lt;div>
+              &lt;span class="badge bg-${ color }">${ app.text[ 'badge_' + id ] }&lt;/span>
+            &lt;/div>
+            &lt;div class="ps-2">
+              ${ input_table.map( ( value, i ) => html`&lt;div>${ value &amp; bit ? getAttributeName( app, phrase, i ) : '' }&lt;/div>` ) }
+            &lt;/div>
+          &lt;/div>
+        `;
+      }
+
+    }
+
+    /**
+     * Returns the HTML template for a part of a connection between two scheme tables.
+     * @param {string} line_id - 'v': vertical, 'h': horizontal, 'l': left, 'r': right, 'u': up, 'd': down, 'ur': up right, 'ul': up left, 'rd': right down, 'dl': down left, 'x': cross
+     * @param {table_nr} a - Table number of the first table of the first connection.
+     * @param {table_nr} b - Table number of the second table of the first connection.
+     * @param {table_nr} [c] - Table number of the first table of the second connection (only when the connecting lines of two table connections cross each other).
+     * @param {table_nr} [d] - Table number of the second table of the second connection.
+     * @returns {*}
+     */
+    function connection( line_id, a, b, c, d ) {
+      if ( line_id === 'x' ) {
+        const v = isConnected( a, b );
+        const h = isConnected( c, d );
+        if ( !v &amp;&amp; !h ) return html`&lt;div>&lt;/div>`;
+        if (  v &amp;&amp; !h ) return line( 'v' );
+        if ( !v &amp;&amp;  h ) return line( 'h' );
+        if (  v &amp;&amp;  h ) return line( 'x' );
+      }
+      return isConnected( a, b ) ? line( line_id ) : html`&lt;div>&lt;/div>`;
+    }
+
+    /**
+     * Returns the HTML template for a line as part of a connection between two scheme tables.
+     * @param {string} line_id - 'v': vertical, 'h': horizontal, 'l': left, 'r': right, 'u': up, 'd': down, 'ur': up right, 'ul': up left, 'rd': right down, 'dl': down left, 'x': cross
+     * @returns {*}
+     */
+    function line( line_id ) {
+      if ( line_id === 'x' ) return html`
+          &lt;div class="line-x">
+            &lt;svg viewBox="0 0 18 26">
+              &lt;line x1="9" y1="0" x2="9" y2="26" stroke="black" stroke-width="2"/>
+              &lt;line x1="0" y1="13" x2="18" y2="13" stroke="black" stroke-width="2"/>
+            &lt;/svg>
+          &lt;/div>
+        `;
+      return html`&lt;div class="line-${ line_id }">&lt;/div>`;
+    }
+
+    /**
+     * Returns the HTML template for an arrow as endpoint of a connection between two scheme tables.
+     * @param {string} arrow_id - 'l': left, 'r': right, 'u': up, 'd': down
+     * @param {table_nr} from - Number of the table from which the connection starts.
+     * @param {table_nr} to - Number of the table to which the connection goes.
+     * @returns {*}
+     */
+    function arrow( arrow_id, from, to ) {
+      if ( isConnected( from, to ) ) {
+        const $arrow = () => {
+          switch ( arrow_id ) {
+            case 'l':
+            case 'r':
+              return html`
+                  &lt;div class="arrow-${ arrow_id }">
+                    &lt;svg viewBox="0 0 18 26">
+                      &lt;line x1="0" y1="12" x2="10" y2="12" stroke="black" stroke-width="2">&lt;/line>
+                      &lt;polygon points="10,8 18,12 10,17" style="fill:black">&lt;/polygon>
+                    &lt;/svg>
+                  &lt;/div>
+                `;
+            case 'u':
+            case 'd':
+              return html`
+                  &lt;div class="arrow-${ arrow_id }">
+                    &lt;svg viewBox="0 0 18 26">
+                      &lt;polygon points="5,8 9,0 13,8" style="fill:black">&lt;/polygon>
+                      &lt;line x1="9" y1="8" x2="9" y2="26" stroke="black" stroke-width="2">&lt;/line>
+                    &lt;/svg>
+                  &lt;/div>
+                `;
+          }
+        };
+        const $line = () => line( arrow_id === 'r' || arrow_id === 'l' ? 'h' : 'v' );
+        if ( app.auto_arrows )
+          return hasRef( from, to ) ? $arrow() : $line();
+        const input_attr = input[ from ][ to ];
+        const input_bit = input_attr &amp; 1 &lt;&lt; ( 9 + to );
+        const solution_attr = solution &amp;&amp; solution[ from ] &amp;&amp; solution[ from ][ to ];
+        const solution_bit = solution_attr &amp; 1 &lt;&lt; ( 9 + to );
+        return html`
+          &lt;div class="endpoint d-flex justify-content-center align-items-center${ solution ? ' bg-' + ( input_bit === solution_bit ? 'success' : 'danger' ) : '' }">
+            &lt;select required ?disabled=${ solution || is_solution } @change=${ event => app.events.onArrow( event.target.value, from, to ) }>
+              &lt;option value="">&lt;/option>
+              &lt;option value="line" ?selected=${ !input_bit &amp;&amp; is_solution }>—&lt;/option>
+              &lt;option value="arrow" ?selected=${ input_bit }>→&lt;/option>
+            &lt;/select>
+            &lt;div ?data-hidden=${ input_attr &amp; input_bit }>
+              ${ $line() }
+            &lt;/div>
+            &lt;div ?data-hidden=${ !( input_attr &amp; input_bit ) }>
+              ${ $arrow() }
+            &lt;/div>
+          &lt;/div>
+        `;
+      }
+      return html`&lt;div class="arrow-${ arrow_id }">&lt;/div>`;
+    }
+
+  }
+
+  /**
+   * Checks if two tables are connected.
+   * @param {table_nr} a - table
+   * @param {table_nr} b - another table
+   * @returns {boolean}
+   */
+  function isConnected( a, b ) {
+    return hasRef( a, b ) || hasRef( b, a );
+  }
+
+  /**
+   * Checks if a table has a reference (foreign key) to another table.
+   * @param {table_nr} from - Table potentially referencing another table.
+   * @param {table_nr} to - Table that is potentially referenced.
+   * @returns {boolean}
+   */
+  function hasRef( from, to ) {
+    const value = result.input[ from ] &amp;&amp; ( result.input[ to ] || is_recursive &amp;&amp; to === 2 ) &amp;&amp; result.input[ from ][ to ];
+    return !!( value &amp; 1 &lt;&lt; 4 || value &amp; 1 &lt;&lt; 5 || value &amp; 1 &lt;&lt; 6 || value &amp; 1 &lt;&lt; 7 || value &amp; 1 &lt;&lt; 8 );
+  }
+
+  /**
+   * Returns the HTML template for a comment.
+   * @param {string} index - Comment index in config
+   * @param {boolean} condition - Condition under which the comment is displayed.
+   * @returns {*}
+   */
+  function comment( index, condition ) {
+    return condition ? html`&lt;div class="alert alert-info my-2 text-wrap" role="alert" data-lang="comment_${ index }">${ app.text[ 'comment_' + index ] }&lt;/div>` : html`&lt;div>&lt;/div>`;
+  }
+
+}
+
+/**
+ * Returns the HTML template of the legend table that shows the different notations in the ER diagram.
+ * @function
+ * @param {object} app - App instance.
+ * @returns {*}
+ */
+export function legend( app ) {
+  const ids = [ '1', 'c', 'n', 'cn' ];
+  return html`
+    &lt;table class="table table-bordered">
+      &lt;thead>
+        &lt;tr>
+          &lt;th scope="col">&lt;/th>
+          ${ ids.map( id => html`&lt;th scope="col" data-lang="legend_${ id }">${ app.text[ 'legend_' + id ] }&lt;/th>`) }
+        &lt;/tr>
+      &lt;/thead>
+      &lt;tbody>
+        ${ Object.values( app.notations ).sort( ( a, b ) => a.title.localeCompare( b.title ) ).map( notation => html`
+          &lt;tr>
+            &lt;th scope="row" style="vertical-align: middle">${ notation.title }&lt;/th>
+            ${ ids.map( ( id, i ) => html`&lt;td>&lt;img src="${ notation.images[ i + 1 ] }">&lt;/td>` ) }
+          &lt;/tr>
+        ` ) }
+      &lt;/tbody>
+    &lt;/table>
+  `;
+}
+
+/**
+ * Returns the HTML template for the title of the table dialog.
+ * @function
+ * @param {object} app - App instance.
+ * @param {table_nr} table - Table number.
+ * @returns {*}
+ */
+export function tableDialogTitle( app, table ) {
+  const data = app.getValue();
+  const phrase = data.phrases[ data.results.length - 1 ];
+  return html`
+    &lt;span data-lang='table'>${ app.text.table }&lt;/span>: ${ table &amp;&amp; phrase.entities[ table - 1 ] || phrase.relation || app.text.hierarchy_is }
+  `;
+}
+
+/**
+ * Returns the HTML template for the body of the table dialog.
+ * @function
+ * @param {object} app - App instance.
+ * @param {table_nr} table - Table number.
+ * @returns {*}
+ */
+export function tableDialogBody( app, table ) {
+  const data = app.getValue();
+  const phrase = data.phrases[ data.results.length - 1 ];
+  const result = data.results[ data.results.length - 1 ];
+  return html`
+    &lt;table class="table table-bordered table-striped text-nowrap">
+      &lt;tbody>
+        ${ result.input[ table ].map( ( _, i, arr ) => attr( i ) ) }
+      &lt;/tbody>
+    &lt;/table>
+  `;
+
+  /**
+   * Returns the HTML template for a row of a table attribute.
+   * @param {table_nr} attr - Table that references the attribute as a foreign key.
+   * @returns {*}
+   */
+  function attr( attr ) {
+    return html`
+      &lt;tr>
+        &lt;td>
+          ${ getAttributeName( app, phrase, attr ) }
+        &lt;/td>
+        &lt;td>
+          &lt;span class="badge ${ result.input[ table ][ attr ] &amp; 1 &lt;&lt; 2 ? 'on' : 'off' } bg-primary" @click=${ () => app.events.onToggleBadge( table, attr, 2 ) }>${ app.text.badge_pk }&lt;/span>
+          &lt;span class="badge ${ result.input[ table ][ attr ] &amp; 1 &lt;&lt; 3 ? 'on' : 'off' } bg-success" @click=${ () => app.events.onToggleBadge( table, attr, 3 ) }>${ app.text.badge_ak }&lt;/span>
+          &lt;span class="badge ${ result.input[ table ][ attr ] &amp; 1 &lt;&lt; attr + 4 ? 'on' : 'off' } bg-warning" ?data-invisible=${ app.hide_own_fk &amp;&amp; table === attr } @click=${ () => app.events.onToggleBadge( table, attr, attr + 4 ) }>${ app.text.badge_fk }${ attr }&lt;/span>
+          &lt;span class="d-inline-flex">
+            &lt;span class="badge left ${ result.input[ table ][ attr ] &amp; 1 ? 'on' : 'off' } bg-secondary" @click=${ () => app.events.onToggleBadge( table, attr, 0 ) }>${ app.text.badge_opt }&lt;/span>
+            &lt;span class="badge right ${ result.input[ table ][ attr ] &amp; 1 &lt;&lt; 1 ? 'on' : 'off' } bg-secondary" @click=${ () => app.events.onToggleBadge( table, attr, 1 ) }>${ app.text.badge_man }&lt;/span>
+          &lt;/span>
+        &lt;/td>
+      &lt;/tr>
+    `;
+  }
+
+}
+
+/**
+ * Returns the HTML template for the footer of the table dialog.
+ * @function
+ * @param {object} app - App instance.
+ * @returns {*}
+ */
+export function tableDialogFooter( app ) {
+  return html`
+    &lt;div data-lang="table_dialog_info">${ app.text.table_dialog_info }&lt;/div>
+    &lt;div class="d-flex flex-wrap mt-2">
+      &lt;div class="me-2 mb-1 d-flex align-items-center">
+        &lt;span class="badge bg-primary" data-lang="badge_pk">${ app.text.badge_pk }&lt;/span>:&amp;nbsp;
+        &lt;span data-lang="badge_pk_title">${ app.text.badge_pk_title }&lt;/span>
+      &lt;/div>
+      &lt;div class="me-2 mb-1 d-flex align-items-center">
+        &lt;span class="badge bg-success" data-lang="badge_ak">${ app.text.badge_ak }&lt;/span>:&amp;nbsp;
+        &lt;span data-lang="badge_ak_title">${ app.text.badge_ak_title }&lt;/span>
+      &lt;/div>
+      &lt;div class="me-2 mb-1 d-flex align-items-center">
+        &lt;span class="badge bg-warning" data-lang="badge_fk">${ app.text.fk }&lt;/span>:&amp;nbsp;
+        &lt;span data-lang="badge_fk_title">${ app.text.badge_fk_title }&lt;/span>
+      &lt;/div>
+    &lt;/div>
+  `;
+}
+
+/**
+ * Returns the name of a table.
+ * @private
+ * @function
+ * @param {object} app - App instance.
+ * @param {phrase_data} phrase - Phrase to which the table belongs.
+ * @param {table_nr} table - Table number.
+ * @returns {string}
+ */
+function getTableName( app, phrase, table ) {
+  return table &amp;&amp; phrase.entities[ table - 1 ] || phrase.relation || app.text.hierarchy_is;
+}
+
+/**
+ * Returns the name of a table attribute.
+ * @private
+ * @function
+ * @param {object} app - App instance.
+ * @param {phrase_data} phrase - Phrase to which the attribute belongs.
+ * @param {table_nr} attr - Table that references the attribute as a foreign key.
+ * @returns {string}
+ */
+function getAttributeName( app, phrase, attr ) {
+  const getRole = entity_nr => attr &amp;&amp; phrase.roles &amp;&amp; phrase.roles[ entity_nr - 1 ];
+  const is_recursive = phrase.entities.length === 2 &amp;&amp; phrase.entities[ 0 ] === phrase.entities[ 1 ];
+  const name = getTableName( app, phrase, attr );
+  return toID( getRole( attr ) || is_recursive &amp;&amp; attr === 2 &amp;&amp; !getRole( 1 ) &amp;&amp; name + '2' || name );
+}
+
+/**
+ * Converts a string to an identifier in snake case.
+ * @private
+ * @function
+ * @param {string} str
+ * @returns {string}
+ * @example
+ * toID('Person') // => person_id
+ */
+function toID( str ) {
+  return str.toLowerCase().trim().replace( /ä/g, 'ae' ).replace( /ö/g, 'oe' ).replace( /ü/g, 'ue' ).replace( /ß/g, 'ss' ).replace( /\W/g, '_' ) + '_id';
+}
+</pre>
+    </article>
+</section>
+
+
+
+
+
+		</div>
+	</div>
+
+	<div class="clearfix"></div>
+
+	
+
+</div>
+</div>
+
+
+    <div class="modal fade" id="searchResults">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Search results</h4>
+          </div>
+          <div class="modal-body"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div>
+
+
+<footer>
+
+	<p style='text-align:center'>This documentation is written by the developer of the web component for ER model to relational scheme training: <a href='mailto:andre.kless@h-brs.de'>André Kless</a></p>
+
+
+	<span class="copyright">
+	<a href='https://en.wikipedia.org/wiki/MIT_License'>MIT Licence</a>
+	</span>
+
+<span class="jsdoc-message">
+	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.6</a>
+	
+		on 2022-08-29T09:07:56+02:00
+	
+	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
+</span>
+</footer>
+
+<script src="scripts/docstrap.lib.js"></script>
+<script src="scripts/toc.js"></script>
+
+    <script type="text/javascript" src="scripts/fulltext-search-ui.js"></script>
+
+
+<script>
+$( function () {
+	$( "[id*='$']" ).each( function () {
+		var $this = $( this );
+
+		$this.attr( "id", $this.attr( "id" ).replace( "$", "__" ) );
+	} );
+
+	$( ".tutorial-section pre, .readme-section pre, pre.prettyprint.source" ).each( function () {
+		var $this = $( this );
+
+		var example = $this.find( "code" );
+		exampleText = example.html();
+		var lang = /{@lang (.*?)}/.exec( exampleText );
+		if ( lang && lang[1] ) {
+			exampleText = exampleText.replace( lang[0], "" );
+			example.html( exampleText );
+			lang = lang[1];
+		} else {
+			var langClassMatch = example.parent()[0].className.match(/lang\-(\S+)/);
+			lang = langClassMatch ? langClassMatch[1] : "javascript";
+		}
+
+		if ( lang ) {
+
+			$this
+			.addClass( "sunlight-highlight-" + lang )
+			.addClass( "linenums" )
+			.html( example.html() );
+
+		}
+	} );
+
+	Sunlight.highlightAll( {
+		lineNumbers : true,
+		showMenu : true,
+		enableDoclinks : true
+	} );
+
+	$.catchAnchorLinks( {
+        navbarOffset: 10
+	} );
+	$( "#toc" ).toc( {
+		anchorName  : function ( i, heading, prefix ) {
+			return $( heading ).attr( "id" ) || ( prefix + i );
+		},
+		selectors   : "#toc-content h1,#toc-content h2,#toc-content h3,#toc-content h4",
+		showAndHide : false,
+		smoothScrolling: true
+	} );
+
+	$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+	$( '.dropdown-toggle' ).dropdown();
+
+    $( "table" ).each( function () {
+      var $this = $( this );
+      $this.addClass('table');
+    } );
+
+} );
+</script>
+
+
+
+<!--Navigation and Symbol Display-->
+
+
+<!--Google Analytics-->
+
+
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            SearcherDisplay.init();
+        });
+    </script>
+
+
+</body>
+</html>

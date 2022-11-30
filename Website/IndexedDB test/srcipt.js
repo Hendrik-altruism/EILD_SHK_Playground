@@ -24,6 +24,10 @@ function viewNotes() {
 
 }
 
+function call(){
+    console.log("called")
+}
+
 function myFunction() {
     let name = prompt("Name", "houde2s")
 

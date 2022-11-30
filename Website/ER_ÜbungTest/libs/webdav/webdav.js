@@ -4,7 +4,7 @@
 //Initialization of the WebDavClient and the local Version of the Database 
 var client
 var tag;
-var db = new Dexie("Uebung_Data")
+var db = new Dexie("ER_Runs")
 var version = 0;
 db.version(1).stores({
     runs: "++id, studTag, correct, key"
