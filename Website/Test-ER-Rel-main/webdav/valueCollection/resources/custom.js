@@ -3,7 +3,7 @@
  * @author André Kless <andre.kless@web.de> 2021-2022
  */
 
-import { html, render } from './../libs/lit/lit.js';
+import { html, render } from '../../../libs/lit/lit.js';
 export { render };
 
 /**
@@ -231,9 +231,7 @@ export function main( app, show_solution ) {
           <button id="submit" type="submit" form="scheme" class="btn btn-primary m-1" ?disabled=${ result.correct !== undefined } data-lang="btn_submit">${ app.text.btn_submit }</input>
           <button id="correction" class="btn btn-primary m-1" @click=${ app.events.onCorrection } ?data-hidden=${ !app.correction } ?disabled=${ result.correct !== false || show_solution } data-lang="btn_correction">${ app.text.btn_correction }</button>
           <button id="solution" class="btn btn-primary m-1" @click=${ app.events.onSolution } ?data-hidden=${ !app.show_solution } ?disabled=${ result.correct === undefined || show_solution } data-lang="btn_solution">${ app.text.btn_solution }</button>
-          <button id="next" class="btn btn-primary m-1" @click=${ app.events.onNext } ?disabled=${ !app.skip && result.correct === undefined || phrase_nr === app.number } data-lang="btn_${ app.skip && result.correct === undefined ? 'skip' : 'next' }">${ app.text[ 'btn_' + ( app.skip && result.correct === undefined ? 'skip' : 'next' ) ] }</button>
-          <button id="finish" class="btn btn-primary m-1" @click=${ app.events.onFinish } ?disabled=${ !app.onfinish || !app.skip && result.correct === undefined || !app.anytime_finish && phrase_nr < app.number } data-lang="btn_finish">${ app.text.btn_finish }</button>
-          <button id="userData" class="btn btn-primary m-1" ?data-hidden=${ !window.webdav } @click=${ toggleDataModal } data-lang="btn_data">${ app.text.btn_data }</button>
+          <button class="btn btn-primary m-1" @click=${ app.events.onFinish }>Zurück</button>
         </section>
 
       </div>

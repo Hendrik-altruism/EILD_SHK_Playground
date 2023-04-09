@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="André Kless <andre.kless@web.de> 2022-2023">
+<meta name="copyright" content="EILD.nrw 2022-2023">
+<meta name="license" content="The MIT License (MIT)">
+<meta name="apple-mobile-web-app-title" content="Anomalie-Trainer">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="apple-touch-icon" href="resources/img/logos/apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<title>Anomalie-Trainer | EILD-Projekt | HS Bonn-Rhein-Sieg</title>
+<style>body { margin: 0 }</style>
+<script src="ccm.anomaly_trainer.js"></script>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#lost_update_gen","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#non_repeatable_read_gen","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#dirty_read_gen","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#lost_update_trainer","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#non_repeatable_read_trainer","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#dirty_read_trainer","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#complete","type":"module"}]'></ccm-anomaly_trainer>
+<hr>
+<ccm-anomaly_trainer src='["ccm.load",{"url":"./configs.js#specific","type":"module"}]'></ccm-anomaly_trainer>

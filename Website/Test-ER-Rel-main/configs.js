@@ -50,11 +50,12 @@ export const config = {
       await instance.data.store.del( instance.data.key );
       instance.start();
     }
-  }
+  },
    */
 
 
-  //Wenn aktiv: Die Efebnisse werden offline in einem LEA Upload-Ordner persistiert 
+  //Wenn aktiv: Die Ergebnisse werden offline in einem LEA Upload-Ordner persistiert und können zur Laufzeit angezeigt werden
+  
   "image": ["ccm.load",
   "./resources/img/abrial/1.svg","./resources/img/abrial/c.svg", "./resources/img/abrial/cn.svg", "./resources/img/abrial/e.svg", "./resources/img/abrial/n.svg", "./resources/img/abrial/r.svg", "./resources/img/abrial/s.svg",
   "./resources/img/arrow/1.svg","./resources/img/arrow/c.svg", "./resources/img/arrow/cn.svg", "./resources/img/arrow/e.svg", "./resources/img/arrow/n.svg", "./resources/img/arrow/r.svg",
@@ -62,32 +63,33 @@ export const config = {
   "./resources/img/crow/1.svg","./resources/img/crow/c.svg", "./resources/img/crow/cn.svg", "./resources/img/crow/e.svg", "./resources/img/crow/n.svg", "./resources/img/crow/r.svg",
   "./resources/img/mc/1.svg","./resources/img/mc/c.svg", "./resources/img/mc/cn.svg", "./resources/img/mc/e.svg", "./resources/img/mc/n.svg", "./resources/img/mc/r.svg"],
    "libs": ["ccm.load",
-    ["./webdav/dexie.min.js",
-      "./webdav/indexed.index.js",
-      "./webdav/download.min.js",
+    [ { "url": "./webdav/valueCollection/resources/custom.js", "type": "module" },
       "./webdav/web.index.js",
-      "./webdav/webdav.js"
+      "./webdav/webdav.js",
+      "./webdav/valueCollection/resources/highcharts.js"
    ]],
   "onchange": async event => {
     if (event.event !== 'next') return;
-
+    
     const results = event.instance.getValue();
     const phrase = results.phrases[event.phrase - 2];
 
-    if(results.results.length == 2){checkPhrases(phrases)};
-    
     phrase.key = phrase.entities.concat(phrase.solution).join('_');
 
-    insertRun(results);
-  }
-  
+    const date = new Date();
+    const dateKey = date.getDate().toString()+"_"+(date.getMonth()+1).toString()
+    //insertRun(results, dateKey);
+  },
+  "onstart": async fun => {
+    setPhrases(phrases)
+  },
 };
 
 /**
  * Phrases data.
  * @type {phrase_data[]}
  */
-export const phrases = [
+ export const phrases = [
   {
     "text": "Im Krankenhaus gibt es zu jedem Patienten eine Patientenakte.",
     "entities": [ "Patient", "Patientenakte" ],
@@ -409,6 +411,17 @@ export const phrases = [
     ]
   },
   {
+    "text": "Für ein Unternehmen sollen die Mitarbeiter verwaltet werden, wobei jeder Mitarbeiter genau einen Vorgesetzten und jeder Vorgesetzte mindestens einen Mitarbeiter haben soll.",
+    "entities": [ "Mitarbeiter", "Mitarbeiter" ],
+    "roles": [ "", "Vorgesetzter" ],
+    "relation": "hat Vorgesetzten",
+    "solution": [ "1", "n" ],
+    "comments": [
+      "Ein Mitarbeiter hat immer genau einen Vorgesetzten.",
+      "Ein Vorgesetzter hat mindestens einen Mitarbeiter."
+    ]
+  },
+  {
     "text": "Beim Standesamt wird verwaltet, welche Personen gerade miteinander verheiratet sind.",
     "entities": [ "Person", "Person" ],
     "relation": "verheiratet",
@@ -427,17 +440,6 @@ export const phrases = [
     "comments": [
       "Ein Ordner hat entweder keinen oder genau einen Oberordner.",
       "Ein Oberordner enthält keinen, einen oder mehrere Unterordner."
-    ]
-  },
-  {
-    "text": "Für ein Unternehmen sollen die Mitarbeiter verwaltet werden, wobei jeder Mitarbeiter genau einen Vorgesetzten und jeder Vorgesetzte mindestens einen Mitarbeiter haben soll.",
-    "entities": [ "Mitarbeiter", "Mitarbeiter" ],
-    "roles": [ "", "Vorgesetzter" ],
-    "relation": "hat Vorgesetzten",
-    "solution": [ "1", "n" ],
-    "comments": [
-      "Ein Mitarbeiter hat immer genau einen Vorgesetzten.",
-      "Ein Vorgesetzter hat mindestens einen Mitarbeiter."
     ]
   },
   {
@@ -501,21 +503,21 @@ export const phrases = [
     "solution": [ "n", "cn", "cn", "cn" ],
     "comments": [
       "Ein Angeklagter hat an mindestens einer Gerichtsverhandlungen teilgenommen.",
-      "Ein Richter hat an keine, eine oder mehrere Gerichtsverhandlungen geleitet.",
+      "Ein Richter hat keine, eine oder mehrere Gerichtsverhandlungen geleitet.",
       "Ein Staatsanwalt war bisher an keiner, einer oder mehreren Gerichtsverhandlungen beteiligt.",
       "Ein Verteidiger war bisher an keiner, einer oder mehreren Gerichtsverhandlungen beteiligt."
     ]
   },
   {
-    "text": "Über eine eigens dafür aufgesetzte Datenbank soll protokolliert werden, welche Veranstaltung an welcher Location mit welchen Teilnehmern mit welchen Sponsoren stattgefunden hat.",
-    "entities": [ "Veranstaltung", "Location", "Teilnehmer", "Sponsor" ],
-    "relation": "findet statt",
-    "solution": [ "n", "n", "n", "n" ],
+    "text": "Die Beteiligten an Buchverfilmungen sollen verwaltet werden.",
+    "entities": [ "Schauspieler", "Regisseur", "Produzent", "Buchautor" ],
+    "relation": "Buchverfilmung",
+    "solution": [ "cn", "cn", "cn", "cn" ],
     "comments": [
-      "Eine in der Datenbank vorhandene Veranstaltung wurde mindestens einmal protokolliert.",
-      "Eine in der Datenbank vorhandene Location wurde bisher gar nicht, einmal oder bereits mehrmals protokolliert.",
-      "Ein in der Datenbank vorhandener Teilnehmer hat mindestens an einer Veranstaltung teilgenommen.",
-      "Ein in der Datenbank vorhandener Sponsor hat sich an mindestens einer Veranstaltung beteiligt."
+      "Ein Schauspieler ist an keiner, einer oder mehreren Buchverfilmungen beteiligt.",
+      "Ein Regisseur hat bei keiner, einer oder mehreren Buchverfilmung die Regie geführt.",
+      "Ein Produzent hat keine, eine oder mehrere Buchverfilmungen mitproduziert.",
+      "Ein Buchautor hat bisher keine, eine oder mehrere Buchverfilmungen erreicht."
     ]
   },
   {
@@ -664,6 +666,7 @@ export const de = {
   "btn_skip": "Überspringen",
   "btn_solution": "Zeige Lösung",
   "btn_submit": "Abschicken",
+  "btn_data": "Zeige Ergebnisse",
 
   /* Comments During Input */
   "comment_create_tables": "Hinweis: Über die Buttons unter dem ER-Diagramm können neue Tabellen angelegt werden. Entscheide, welche Tabellen benötigt werden.",
@@ -753,6 +756,7 @@ export const en = {
   "btn_skip": "Skip",
   "btn_solution": "Show Solution",
   "btn_submit": "Submit",
+  "btn_data": "Show UserData",
 
   /* Comments During Input */
   "comment_create_tables": "Note: New tables can be created using the buttons below the ER diagram. Decide which tables are needed.",

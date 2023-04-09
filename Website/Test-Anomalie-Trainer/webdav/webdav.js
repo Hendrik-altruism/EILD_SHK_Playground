@@ -12,7 +12,7 @@ let graphSetting = false;
  * @param {true} tableShow   -   Ergebnisse werden zusätzlich in Tabellenform mit Suchfilter angezeigt
  * @param {false} tableShow  -   Ergebnisse werden nicht in Tabellenform angezeigt
  */
-const tableShow = false;
+const tableShow = true;
 
 /**
  * Einstellung für die Anzeige der Ergebnisse
@@ -25,41 +25,39 @@ const dataAll = false;
  * URL zum WebDav-Ordner
  * @param {String} webDavLink   -   Ergebnisse werden zusätzlich in Tabellenform mit Suchfilter angezeigt
  */
-const webDavLink = "https://lea.hochschule-bonn-rhein-sieg.de/webdav.php/db_040811/ref_1325238/";
+const webDavLink = "https://lea.hochschule-bonn-rhein-sieg.de/webdav.php/db_040811/ref_1372783";
 
 
 //Globale Variablen
-window.webdav = true;       //Setzt die globale Webdav Variable
-let phrases = [];           //Phrasen -> werden beim Start gesetzt
+window.webdav = true      //Setzt die globale Webdav Variable
 let tag;                    //Tag des Nutzenden Studenten
 let client;                 //Eingeloggter Client in der Webdav-Verbindung
-let studData = {};          //Komplette Daten des/der Studenten               
+let studData = [];          //Komplette Daten des/der Studenten       
+let timeSpan = 365;         //Zeitspanne in Tagen, in der die Daten angezeigt werden        
 let pos = 0;                //Anzeige-Position des Graphen
 const span = 25;            //Spanne der angezeigten Phrasen im Graphen
 let tablePos = 0;           //Anzeige-Position der Tabelle
 const tableSpan = 10;       //Spanne der angezeigten  im Graphen
 let total = 0;              //Länge der bearbeiteten Phrasen
 let filter = "";            //Filtereinstellung für die Suchfunktion
-const keys = new Array();   //Array mit der Schlüsseln der Durchläufe
+let lostArr = new Array();   //Array mit der Schlüsseln der Durchläufe
+let readArr = new Array();  //Array mit den richtigen Lösungen der Durchläufe
+let dirtyArr = new Array();  //Array mit den falschen Lösungen der Durchläufe
 
 //Testdaten für dei Entwicklung
 const testData = {
-    Patient_Patientenakte_1_1: [
+    lost:  [
         ["2-23", "2-11", "3-7", "3-11", "3-11"],
-        ["2-2", "3-6", "3-7", "3-11"], 
+        ["2-2", "3-6", "3-7", "3-11"]
     ],
-    Vater_Mutter_Kind_n_n_1: [
+    read:  [
         ["1-2", "3-6", "3-7", "3-11"],
-        ["1-11", "2-5", "3-7", "3-11", "3-11"]  
+        ["1-11", "2-5", "3-7", "3-11", "3-11"]
     ],
-    Hund_Schäferhund_Mops_Dackel_p_n: [
+    dirty: [
         ["2-11", "2-11", "3-11", "3-11", "3-11", "3-11"],
         ["2-2", "3-6", "3-11"]
-    ],
-    Patient_Akte_1_1: [
-        ["1-2", "3-7", "3-11"],
-        ["1-11", "3-11"]
-    ],
+    ]
 }
 
 
@@ -100,7 +98,7 @@ async function createPopup(){
   <div class="modal-backdrop show"></div>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
   `
-    document.getElementById("er_rel_trainer-1").insertAdjacentHTML("afterend", m)
+    document.body.insertAdjacentHTML("afterend", m)
 }
 
 /**
@@ -130,18 +128,17 @@ async function userDataPlot(){
 async function login() {
     tag = hash(document.getElementById("StudData").value+document.getElementById("StudPw").value.toString())
     try{
-        //initCon(document.getElementById("StudData"), document.getElementById("StudPw"))  
-        //call();
+        initCon(document.getElementById("StudData"), document.getElementById("StudPw"))  
+        call();
     }
     catch(err){
         document.getElementById("errorMessage").style.display = "block";
         document.getElementById("StudPw").value="";
         return false;
     }
-    checkOutdated()
     document.querySelector("#myModal").style.display = "none";     
     document.querySelector(".modal-backdrop").style.display = "none";  
-    userDataPlot()                                                                    
+    userDataPlot()                                                                
     return true;
 }
 
@@ -172,25 +169,49 @@ async function call() {
     try { await client.getFileContents("/" + tag + ".json", { format: "text" }) }
     catch (e) {
         console.log("User Directory needs to be created")
-        client.putFileContents("/" + tag + ".json", "{}")
+        data = `{
+            "lost":  [
+                [],
+                []
+            ],
+            "read":  [
+                [],
+                []
+            ],
+            "dirty": [
+                [],
+                []
+            ]
+        }`
+        client.putFileContents("/" + tag + ".json", data)
     }
 }  
 
 /**
  * Fügt einen Durchlauf in die JSON-Datei des Nutzers ein
- * @param {*} file          -   Vom Trainer generierte Datei mit Lösungsdaten
- * @param {String} dateKey  -   Vom Trainer generierter String mit Datum
+ * @param {String} trainerKey       -   Name des Trainers -> Art der Anomalie
+ * @param {boolean} resultPhrase    -   Ergebniss des Durchlaufs
+ * @param {String} datePhrase       -   Datum als String
  */
-async function insertRun(file, dateKey) {
-    if(file.results[file.results.length-2].hasOwnProperty('correct')){
-        let data = JSON.parse(await client.getFileContents("/" + tag + ".json", { format: "text" })) 
-      
-        data[file.phrases[file.results.length-2].key][file.results[file.results.length-2].correct ? 0 : 1].push(dateKey)
-        try{
-            client.putFileContents("/" + tag + ".json", JSON.stringify(data))       
-        } catch(error){
-        }
-    }               
+async function insertRun(trainerKey, resultPhrase, datePhrase) {
+    let data = JSON.parse(await client.getFileContents("/" + tag + ".json", { format: "text" })) 
+    const resultIndex = resultPhrase ?  0 : 1
+    switch (trainerKey) {
+        case 'Lost Update':
+            data.lost[resultIndex].push(datePhrase) 
+            break;
+        case "Non-Repeatable Read":
+            data.read[resultIndex].push(datePhrase) 
+            break;
+        case "Dirty Read":
+            data.dirty[resultIndex].push(datePhrase) 
+            break;
+        default:
+    }
+    try{
+        client.putFileContents("/" + tag + ".json", JSON.stringify(data))       
+    } catch(error){
+    }             
 }
 
 /**
@@ -256,20 +277,14 @@ async function generateGraphTemplate(){
         <table id="dataTable" class="table table-striped borderBox">
           <thead>
               <tr>
-                  <th>Phrase</th>
+                  <th>Trainer</th>
                   <th>Ergebniss</th>
+                  <th>Datum</th>
               </tr>
           </thead>
           <tbody id="tbody">
           </tbody>
         </table>
-        <div class="phraseContent borderBox">
-            <div class="desHeader">
-                <b>Beschreibung</b>
-            </div>
-            <div id="phraseContentDes">
-            </div>
-        </div>
     </div>
 </div>
 <div class="container controller" id="tableController">
@@ -292,17 +307,15 @@ async function generateGraphTemplate(){
 </div>
 <div class="container controller" id="chartsController">
   <button class="btn btn-primary" id="switchGraphMode" onclick="toggleGraphSetting()">Prozent</button>
-  <ul class="pagination">
-      <li id="prev" class="paginate_button page-item previous disabled" id="">
-          <a onclick="changePrevious()" href="#" class="page-link">Vorherige</a>
-      </li>
-      <li id="route" class="paginate_button page-item active">
-          <a class="page-link">0 bis 25</a>
-      </li>
-      <li id="next" class="paginate_button page-item previous disabled" id="">
-          <a onclick="changeNext()" href="#" class="page-link">Nächste</a>
-      </li>
-  </ul>
+  <div class="dropdown">
+  <button class="btn btn-primary" id="dropdownbtn" onclick="toggleDropDown()">Alle Ergebnisse</button>
+    <ul class="dropdown-menu">
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(365)" id="timeAll">Alle Ergebnisse</a></li>
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(30)" id="timeThirty">Letzte 30 Tage</a></li>
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(7)" id="timeSeven">Letzte 7 Tage</a></li>
+    </ul>
+  </div>
+</div>
 </div>
 <style>
     .customContainer{
@@ -324,14 +337,15 @@ async function generateGraphTemplate(){
   #InputField {
       margin: 12;
   }
-   
+ 
+
   #tableBox{
     display: flex;
     margin-bottom: 20px;
   }
 
   #dataTable{
-    width: 60%;
+    width: 100%;
     margin: 0;
   }
   
@@ -349,10 +363,6 @@ async function generateGraphTemplate(){
 
   #phraseContentDes{
       padding: 1em;
-  }
-
-  .phraseContent{
-      width: 40%;
   }
 
   table {
@@ -483,10 +493,10 @@ async function generateGraphTemplate(){
  * Ruft die Funktionen auf um das Template zu befüllen
  */
 async function fillTemplate(){
-  if(!dataAll){
-    await getUpdatedSingle();
-  }else{
+  if(dataAll){
     await getUpdatedAll();
+  }else{
+    await getUpdatedSingle();
   }  
   await searchListener()
   if(tableShow){
@@ -501,42 +511,48 @@ async function fillTemplate(){
  * Importiert ALLE Nutzerdaten aus dem Ergebniss-Ordner 
  */
 async function getUpdatedAll() {
-  for(i = 1; i<=phrases.length; i++){
-    keys[i-1]=i
-    }
+  lostArr = [[],[]]
+  readArr = [[],[]]
+  dirtyArr = [[],[]]
   const directoryItems = await client.getDirectoryContents("/")
-  for (let i = 1; i < directoryItems.length; i++) {
+  studData.length = directoryItems.length-1
+  for (let i = 0; i < directoryItems.length-1; i++) {
       const tempName = directoryItems[i].filename
-      let tempData = JSON.parse(await client.getFileContents("/" + tempName, { format: "text" }));
-      
-      for (const [key, value] of Object.entries(tempData)){
-        studData[key][0]=studData[key][0].concat(value[0])
-        studData[key][1]=studData[key][1].concat(value[1])
-    }
+      let tempData = await client.getFileContents("/" + tempName, { format: "text" });
+      tempData = JSON.parse(tempData)
+      //Test für example Data
+      //let tempData = testData
+      try {
+         lostArr[0] = lostArr[0].concat(tempData.lost[0])
+         lostArr[1] = lostArr[1].concat(tempData.lost[1])
+         readArr[0] = readArr[0].concat(tempData.read[0])
+         readArr[1] = readArr[1].concat(tempData.read[1])
+         dirtyArr[0] = dirtyArr[0].concat(tempData.dirty[0])
+         dirtyArr[1] = dirtyArr[1].concat(tempData.dirty[1])
+      } catch (error) {
+          console.log(error)
+      }
+      studData[i]=tempData
   }
-  createChart(0)
-  createShown(pos, span)
-  if(pos+span<keys.length){document.getElementById("next").classList.remove('disabled')}
+  createChart(0, timeSpan)
 }
 
 /**
  * Importiert nur Nutzerdaten aus dem Ergebniss-Ordner, die den Login-Daten des einzelnen Studenten zugeordnet werden können 
  */
 async function getUpdatedSingle() {
-    for(i = 1; i<=phrases.length; i++){
-      keys[i-1]=i
-    }
-    //let tempData = await client.getFileContents("/" + tag + ".json", { format: "text" });
-    //tempData = JSON.parse(tempData)
-    //Test für example Data
-    tempData = testData
-    for (const [key, value] of Object.entries(tempData)){
-        studData[key][0]=studData[key][0].concat(value[0])
-        studData[key][1]=studData[key][1].concat(value[1])
-    }
-    createChart(0)
-    createShown(pos, span)
-    if(pos+span<keys.length){document.getElementById("next").classList.remove('disabled')}
+      let tempData = await client.getFileContents("/" + tag + ".json", { format: "text" });
+      tempData = JSON.parse(tempData)
+      //Test für example Data
+      //let tempData = testData
+      try {
+        lostArr = [tempData.lost[0], tempData.lost[1]]
+        readArr = [tempData.read[0], tempData.read[1]]
+        dirtyArr = [tempData.dirty[0], tempData.dirty[1]]
+      } catch (error) {
+  }
+  studData[0] = tempData
+  createChart(0, timeSpan)
 }
 
 /**
@@ -549,19 +565,57 @@ async function showContent(outputSpan) {
   let totalRuns = []
   for (let i = 0; i < studData.length; i++) {
       const aktRuns = studData[i];
-      for(let j = 0; j<aktRuns.length;j++){
-          if(aktRuns[j].key.toString().includes(filter)||aktRuns[j].correct.toString().includes(filter)){
-            totalRuns.push(aktRuns[j])
-          }
+      //Lost Update
+      for(let j = 0; j<aktRuns.lost[0].length;j++){
+        const newDate = (aktRuns.lost[0][j].split("-")[1].concat(".", aktRuns.lost[0][j].split("-")[0]))
+        if(newDate.includes(filter)||("lost update".includes(filter))||("true".includes(filter))){
+            totalRuns.push("Lost Update_True_"+newDate)
+        }
+      }
+      for(let j = 0; j<aktRuns.lost[1].length;j++){
+        const newDate = (aktRuns.lost[1][j].split("-")[1].concat(".", aktRuns.lost[1][j].split("-")[0]))
+        if(newDate.includes(filter)||("lost update".includes(filter))||("false".includes(filter))){
+            totalRuns.push("Lost Update_False_"+newDate)
+        }
+      }
+      //Non-Repeatable Read
+      for(let j = 0; j<aktRuns.read[0].length;j++){
+        const newDate = (aktRuns.read[0][j].split("-")[1].concat(".", aktRuns.read[0][j].split("-")[0]))
+        if(newDate.includes(filter)||("non-repeatable read".includes(filter))||("true".includes(filter))){
+            totalRuns.push("Non-Repeatable Read_True_"+newDate)
+        }
+      }
+      for(let j = 0; j<aktRuns.read[1].length;j++){
+        const newDate = (aktRuns.read[1][j].split("-")[1].concat(".", aktRuns.read[1][j].split("-")[0]))
+        if(newDate.includes(filter)||("non-repeatable read".includes(filter))||("false".includes(filter))){
+            totalRuns.push("Non-Repeatable Read_False_"+newDate)
+        }
+      }
+      //Dirty Read
+      for(let j = 0; j<aktRuns.dirty[0].length;j++){
+        const newDate = (aktRuns.dirty[0][j].split("-")[1].concat(".", aktRuns.dirty[0][j].split("-")[0]))
+        if(newDate.includes(filter)||("dirty read".includes(filter))||("true".includes(filter))){
+            totalRuns.push("Dirty Read_True_"+newDate)
+        }
+      }
+      for(let j = 0; j<aktRuns.dirty[1].length;j++){
+        const newDate = (aktRuns.dirty[1][j].split("-")[1].concat(".", aktRuns.dirty[1][j].split("-")[0]))
+        if(newDate.includes(filter)||("dirty read".includes(filter))||("false".includes(filter))){
+            totalRuns.push("Dirty Read_False_"+newDate)
+        }
       }
   }
+
+  
+    totalRuns = sortCrit(totalRuns)
+  
   for (let y = outputSpan; y<totalRuns.length&&y<outputSpan+tableSpan; y++){
         const tableRow = document.createElement("tr")
-        const run = totalRuns[y]
-        const decKey = run.key-1
+        const run = totalRuns[y].split("_")
         const s = `
-        <td><a href="javascript:callPopup(${decKey})" class="tableLinks">${run.key}</a></td>
-        <td>${run.correct}</td>
+        <td>${run[0]}</td>
+        <td>${run[1]}</td>
+        <td>${run[2]}</td>
         `
         tableRow.innerHTML = s;
         tbody.appendChild(tableRow)
@@ -577,24 +631,29 @@ async function showContent(outputSpan) {
  * Generiert die Werte für den Graphen
  * @param {*} outputSpan    -   Die Position an Duchläufen, die ausgegeben wird
  */
-async function createChart(outputSpan){
-kArray = new Array();
-rArray = new Array();
-wArray = new Array();
-let index = 0
-for (const [key, value] of Object.entries(studData)) {
-    kArray[index]=index+1
-    rArray[decript(key)-1]=value[0].length
-    wArray[decript(key)-1]=value[1].length
-    index++
-}
+async function createChart(outputSpan, timeParam){
+    const aktTime = new Date()
+    const dateOffset = (24*60*60*1000)*timeParam
 
-kArray = kArray.slice(outputSpan, span+outputSpan)
-rArray = rArray.slice(outputSpan, span+outputSpan)
-wArray = wArray.slice(outputSpan, span+outputSpan)
+    aktTime.setTime(aktTime.getTime()-dateOffset)
 
-plotChart(kArray, rArray, wArray) 
-pos = outputSpan 
+    function filterFun(dateString){
+        const tempDate = new Date("2023-"+dateString)
+        if(tempDate >= aktTime){
+            return true;
+        }
+        return false;
+    }
+
+    const filterLostArr = [lostArr[0].filter(element => filterFun(element)), lostArr[1].filter(element => filterFun(element))]
+    const filterReadArr = [readArr[0].filter(element => filterFun(element)), readArr[1].filter(element => filterFun(element))]
+    const filterDirtyArr = [dirtyArr[0].filter(element => filterFun(element)), dirtyArr[1].filter(element => filterFun(element))]
+
+    const rArray = [filterLostArr[0].length, filterReadArr[0].length, filterDirtyArr[0].length];
+    const wArray = [filterLostArr[1].length, filterReadArr[1].length, filterDirtyArr[1].length];
+
+    plotChart(rArray, wArray) 
+    pos = outputSpan 
 }
 
 /**
@@ -637,66 +696,35 @@ async function toggleGraphSetting(){
     }else{
         document.getElementById("switchGraphMode").innerHTML = "Prozent"
     }
-    createChart(pos)
+    createChart(pos, timeSpan)
 }
 
-/**
- * Navigationsfunktionen um Ansicht des Graphen zu verändern
- */
-async function changeNext(){
-    if( !document.getElementById("next").classList.contains('disabled')){
-        createChart(pos+span)
-        document.getElementById("prev").classList.remove('disabled')
-        if(pos+span>=keys.length){document.getElementById("next").classList.add('disabled')}
-        createShown(pos, span)
-    }
-}
-async function changePrevious(){
-    if(!document.getElementById("prev").classList.contains('disabled')){
-        createChart(pos-span)
-        document.getElementById("next").classList.remove('disabled')
-        if(pos-span<0){document.getElementById("prev").classList.add('disabled')}
-        createShown(pos, span)
+async function toggleDropDown(){
+    const x = document.querySelector('.dropdown-menu')
+    if(x.style.display == "none"){
+        x.style.display = "block"
+    }else{
+        x.style.display = "none"
     }
 }
 
-/**
- * Fügt die Navigationsleiste für den Graphen ein
- * @param {*} akt   -   Aktuelle Position der Anzeige   
- * @param {*} range -   Reichweite der Anzeige
- */
-async function createShown(akt, range){
-const shown = document.getElementById('route')
-shown.innerHTML = '<a class="page-link">'+(akt+1)+" bis "+Math.min((akt+range), phrases.length)+'</a>'
-}
-
-
-/**
- * Wandelt den Schlüssel zurück zur jeweiligen Phrase um
- * @param {*} skey den generierten Schlüssel
- * @returns {nkey} ein Schlüssel für eine Phrase
- */
-function decript(skey){
-  if(typeof skey === "number"){
-      return skey;
-  }
-  var alist = skey.split("_");
-  let ent = [];
-  let sol = [];
-  for(let b = 0; b<alist.length;b++){
-      if(alist[b].length>2){
-          ent.push(alist[b])
-      }else{
-          sol.push(alist[b])
-      }
-  }
-  var nkey=0
-  for(let i=0;i<phrases.length;i++){
-    if(phrases[i].entities.toString()===ent.toString()&&phrases[i].solution.toString()===sol.toString()){
-      nkey=i+1
-    }
-  }
-  return nkey;
+async function execDropDown(timeValue){
+    document.querySelector('.dropdown-menu').style = "display:none" 
+    timeSpan = timeValue
+    createChart(0, timeSpan)
+    selector = 'timeAll'
+    switch (timeValue){
+        case 365:
+            selector = 'timeAll'
+            break;
+        case 30:
+            selector = 'timeThirty'
+            break;
+        case 7:
+            selector = 'timeSeven'
+            break;
+    } 
+    document.querySelector('#dropdownbtn').innerHTML = document.querySelector('#'+selector).innerHTML
 }
 
 /**
@@ -705,7 +733,7 @@ function decript(skey){
  * @param {*} rightArray Array mit allen richtigen Ergebnissen 
  * @param {*} wrongArray Array mit allen falschen Ergebnissen 
  **/
-function plotChart(keyArray, rightArray, wrongArray) {
+function plotChart(rightArray, wrongArray) {
     let stack = "normal"
     let yText = "Ergebnisse Total"
     if(graphSetting){
@@ -721,7 +749,7 @@ function plotChart(keyArray, rightArray, wrongArray) {
           text: 'Phrasen Ergebnisse'
       },
       xAxis: {
-          categories: keyArray,
+          categories: ["Lost Update", "Non-Repeatable Read", "Dirty Read"],
           labels: {
             
           }
@@ -762,61 +790,6 @@ function plotChart(keyArray, rightArray, wrongArray) {
   });
 }
 
-/**
- * Roft das Popup für die angeklickte Phrase auf
- * @param {*} phraseID  -   ID der angeclickten Phrase
- */
-function callPopup(phraseID){
-document.querySelector('.desHeader').innerHTML = "<b>Beschreibung Phrase: "+ (phraseID+1)+ "</b>"
-let phrase = phrases[phraseID]
-let p = '<div class="DataField"><span class="identifier">Text: </span><span class="variable">'+phrase.text.toString()+'</span></div>'  
-p+= '<div class="DataField"><span class="identifier">Entitäten: </span><span class="variable">'+phrase.entities.toString()+'</span></div>'
-if(phrase.hasOwnProperty('relation')){
-p+= '<div class="DataField"><span class="identifier">Relation: </span><span class="variable">'+phrase.relation.toString()+'</span></div>'
-} else {
-  p+= '<div class="DataField"><span class="identifier">Relation: </span><span class="variable">ist</span></div>'
-}
-p+= '<div class="DataField"><span class="identifier">Lösung: </span><span class="variable">'+phrase.solution.toString()+'</span></div>'
-p+= '<div class="DataField"><span class="identifier">Kommentare: </span><span class="variable">'+phrase.comments.toString()+'</span></div>'
-p+= '<div class="button-container"><button class="btn btn-primary phrase-btn">Phrase Bearbeiten</button></div>'
-document.getElementById('phraseContentDes').innerHTML = p
-document.querySelector('.phrase-btn').addEventListener('click', () => startTrainer(phrase))
-}
-
-/**
- * Startet den Trainer im Modal-Dialog zur bearbeitung einer bestimmten Phrase
- * @param {*} phrase    -   Phrase mit welcher der Trainer gestartet wird 
- */
-async function startTrainer(phrase){
-    ccm.start(".../ccm.er_rel_trainer.js", {
-        root: document.querySelector('.modal-body'),
-        phrases: [phrase],
-        html: [ "ccm.load", { "url": "./webdav/valueCollection/resources/custom.js", "type": "module" } ],
-        onfinish: async (event, instance)=>{
-            const result = instance.getValue();
-            const phrase = result.phrases[0];
-            
-            phrase.key = phrase.entities.concat(phrase.solution).join('_');
-            
-            /*
-            if(result.results[0].hasOwnProperty('correct')){
-                const run = {
-                    correct: result.results[0].correct,
-                    key: phrase.key,
-                }
-                let data = JSON.parse(await client.getFileContents("/" + tag + ".json", { format: "text" }))    
-                data.push(run)
-                try{
-                    client.putFileContents("/" + tag + ".json", JSON.stringify(data))       
-                } catch(error){
-                }
-            } */
-
-            document.querySelector('.modal-body').innerHTML = await generateGraphTemplate();
-            await fillTemplate();
-        }
-    });
-}
 
 /**
  * Fügt den Listener für die suchfunktion der Tabelle hinzu
@@ -831,47 +804,32 @@ async function searchListener(){
 }
 
 /**
- * Setzt die Phrasen, nach start des Trainers
- * @param {*} p -   Array an Phrasen
+ * Sortiert den Array an Ergebnissen
+ * @param {*} arr Array mit den gesammten Ergebnissen
  */
-function setPhrases(p){
-    phrases = p;
-    getKeys().forEach(element => {
-        studData[element] = [[],[]];
-    })
-}
+function sortCrit(arr){
 
-/**
- * Hilfsfuntktion um die eindeutigen Keys der Phrasen zu generieren 
- * @returns {Array}     -   Array an generierten Keys aus den Phrasen
- */
-function getKeys(){
-    const result = [];
-    phrases.forEach(element => {
-       result.push(element.entities.concat(element.solution).join('_'))
-    })
-    return result
-}
+    return arr.sort(compare)
 
-/**
- * Löscht die Daten von Phrasen, die sich nicht mehr im Trainer befinden
- * @param {String} fileName -   Name der Datei die bereinigt werden soll 
- */
-async function checkOutdated(fileName = tag){
-    //Testdaten zur Überprüfung der Methode
-    const localData = testData
-    //const localData = JSON.parse(await client.getFileContents("/" + fileName + ".json", { format: "text" }))
-    const genKeys = getKeys();
+    function compare(a, b){
+        const day1 = parseInt(a.split("_")[2].split(".")[0])
+        const month1 = parseInt(a.split("_")[2].split(".")[1])
+        const day2 = parseInt(b.split("_")[2].split(".")[0])
+        const month2 = parseInt(b.split("_")[2].split(".")[1])
 
-    for (const key in localData){
-        if (!genKeys.includes(key)){
-            delete localData[key]
+        if(month1>month2){
+            return -1
         }
+        if(month1<month2){
+            return 1
+        }
+        if(day1>day2){
+            return -1
+        }
+        if(day1<day2){
+            return 1
+        }
+        return 0;
     }
-    genKeys.forEach(element =>{
-        if (!localData.hasOwnProperty(element)){
-            localData[element] = [[], []]
-        }
-    })
-    //client.putFileContents("/" + fileName + ".json", JSON.stringify(localData))
 }
+

@@ -26,9 +26,9 @@ async function login() {
     phrases = JSON.parse( phrases );
     document.querySelector(".popup").style.display = "none";
     await getUpdated()
-    //createShown(pos, span)
-    //await showContent(50)
-    //$('#example').DataTable();
+    createShown(pos, span)
+    await showContent(50)
+    $('#example').DataTable();
 }
 
 //Intialization of the user Connection with console log aon completion
@@ -55,7 +55,7 @@ async function getUpdated() {
         wrong.push(0)
       }
     const directoryItems = await client.getDirectoryContents("/")
-    studData.length = directoryItems.length
+    studData.length = directoryItems.length-1
     for (let i = 1; i < directoryItems.length; i++) {
         var tempName = directoryItems[i].filename
         var tempData = await client.getFileContents("/" + tempName, { format: "text" });
@@ -63,43 +63,31 @@ async function getUpdated() {
         try {
             for(let i = 0; i<tempData.length; i++){
                 tempData[i].key = decript(tempData[i].key)
-                tempData.correct ? right[tempData.key-1]+=1 : wrong[tempData.key-1]+=1;
+                tempData[i].correct ? right[tempData[i].key-1]+=1 : wrong[tempData[i].key-1]+=1;
             }
         } catch (error) {
         }
-        studData[i]=tempData
+        studData[i-1]=tempData
     }
-    console.log(right)
-    console.log(wrong)
-    console.log(keys)
     return true
 }
 
 async function showContent() {
     const tbody = document.getElementsByTagName('tbody')[0];
-    var s = ''
-    for(i = 1; i<=phrases.length; i++){
-      keys.push(i)
-      right.push(0)
-      wrong.push(0)
-    }
-    for (var i = 0; i < studData.length; i++) {
-        var run = collection[i]
-        if (run.correct) {
-            right[run.key-1] += 1
-        } else {
-            wrong[run.key-1] += 1
+    for (let i = 0; i < studData.length; i++) {
+        const aktRuns = studData[i];
+        for (let y = 0; y < aktRuns.length; y++){
+            const tableRow = document.createElement("tr")
+            const run = aktRuns[y]
+            const decKey = run.key-1
+            const s = `
+            <td>${run.correct}</td>
+            <td><a href="javascript:callPopup(${decKey})" class="tableLinks">${run.key}</a></td>
+            `
+            tableRow.innerHTML = s;
+            tbody.appendChild(tableRow)
         }
-        var decKey = run.key-1
-        s += '<tr>';
-        s += '<td>' + run.studTag + '</td>';
-        s += '<td>' + run.correct + '</td>';
-        s += '<td><a href="javascript:callPopup('+decKey+')" class="tableLinks">'+ run.key +'</a></td>';
-        s += '</tr>';
-
     }
-    s += '';
-    tbody.innerHTML = s
     createChart(0)
     if(pos+span<keys.length){document.getElementById("next").classList.remove('disabled')}
 }
