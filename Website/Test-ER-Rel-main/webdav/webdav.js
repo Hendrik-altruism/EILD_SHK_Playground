@@ -12,7 +12,7 @@ let graphSetting = false;
  * @param {true} tableShow   -   Ergebnisse werden zusätzlich in Tabellenform mit Suchfilter angezeigt
  * @param {false} tableShow  -   Ergebnisse werden nicht in Tabellenform angezeigt
  */
-const tableShow = false;
+const tableShow = true;
 
 /**
  * Einstellung für die Anzeige der Ergebnisse
@@ -33,7 +33,8 @@ window.webdav = true;       //Setzt die globale Webdav Variable
 let phrases = [];           //Phrasen -> werden beim Start gesetzt
 let tag;                    //Tag des Nutzenden Studenten
 let client;                 //Eingeloggter Client in der Webdav-Verbindung
-let studData = {};          //Komplette Daten des/der Studenten               
+let studData = {};          //Komplette Daten des/der Studenten              
+let timeSpan = 365;         //Zeitspanne in Tagen, in der die Daten angezeigt werden    
 let pos = 0;                //Anzeige-Position des Graphen
 const span = 25;            //Spanne der angezeigten Phrasen im Graphen
 let tablePos = 0;           //Anzeige-Position der Tabelle
@@ -45,20 +46,20 @@ const keys = new Array();   //Array mit der Schlüsseln der Durchläufe
 //Testdaten für dei Entwicklung
 const testData = {
     Patient_Patientenakte_1_1: [
-        ["2-23", "2-11", "3-7", "3-11", "3-11"],
-        ["2-2", "3-6", "3-7", "3-11"], 
+        ["2023-2-23", "2023-2-11", "2023-3-7", "2023-3-11", "2023-3-11"],
+        ["2023-2-2", "2023-3-6", "2023-3-7", "2023-3-11"], 
     ],
     Vater_Mutter_Kind_n_n_1: [
-        ["1-2", "3-6", "3-7", "3-11"],
-        ["1-11", "2-5", "3-7", "3-11", "3-11"]  
+        ["2023-1-2", "2023-4-6", "2023-4-7", "2023-4-11"],
+        ["2023-1-11", "2023-2-5", "2023-3-7", "2023-4-11", "2023-4-11"]  
     ],
     Hund_Schäferhund_Mops_Dackel_p_n: [
-        ["2-11", "2-11", "3-11", "3-11", "3-11", "3-11"],
-        ["2-2", "3-6", "3-11"]
+        ["2023-2-11", "2023-2-11", "2023-3-11", "2023-3-11", "2023-3-11", "2023-3-11"],
+        ["2023-2-2", "2023-3-6", "2023-3-11"]
     ],
     Patient_Akte_1_1: [
-        ["1-2", "3-7", "3-11"],
-        ["1-11", "3-11"]
+        ["2023-1-2", "2023-3-7", "2023-3-11"],
+        ["2023-1-11", "2023-3-11"]
     ],
 }
 
@@ -128,6 +129,10 @@ async function userDataPlot(){
  * @returns {boolean}   -   Annnmeldevorgang erfolgreich
  */
 async function login() {
+    if(document.getElementById("StudData").value==""||document.getElementById("StudPw").value.toString()==""){
+        document.getElementById("errorMessage").style.display = "block";
+        return false
+    }
     tag = hash(document.getElementById("StudData").value+document.getElementById("StudPw").value.toString())
     try{
         //initCon(document.getElementById("StudData"), document.getElementById("StudPw"))  
@@ -258,6 +263,7 @@ async function generateGraphTemplate(){
               <tr>
                   <th>Phrase</th>
                   <th>Ergebniss</th>
+                  <th>Datum</th>
               </tr>
           </thead>
           <tbody id="tbody">
@@ -292,6 +298,14 @@ async function generateGraphTemplate(){
 </div>
 <div class="container controller" id="chartsController">
   <button class="btn btn-primary" id="switchGraphMode" onclick="toggleGraphSetting()">Prozent</button>
+  <div class="dropdown">
+  <button class="btn btn-primary" id="dropdownbtn" onclick="toggleDropDown()">Alle Ergebnisse</button>
+    <ul class="dropdown-menu">
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(365)" id="timeAll">Alle Ergebnisse</a></li>
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(30)" id="timeThirty">Letzte 30 Tage</a></li>
+        <li class="dropdown-element"><a class="dropdown-item" href="#" onclick="execDropDown(7)" id="timeSeven">Letzte 7 Tage</a></li>
+    </ul>
+  </div>
   <ul class="pagination">
       <li id="prev" class="paginate_button page-item previous disabled" id="">
           <a onclick="changePrevious()" href="#" class="page-link">Vorherige</a>
@@ -505,16 +519,16 @@ async function getUpdatedAll() {
     keys[i-1]=i
     }
   const directoryItems = await client.getDirectoryContents("/")
-  for (let i = 1; i < directoryItems.length; i++) {
+  for (let i = 0; i < directoryItems.length; i++) {
       const tempName = directoryItems[i].filename
       let tempData = JSON.parse(await client.getFileContents("/" + tempName, { format: "text" }));
-      
+
       for (const [key, value] of Object.entries(tempData)){
         studData[key][0]=studData[key][0].concat(value[0])
         studData[key][1]=studData[key][1].concat(value[1])
     }
   }
-  createChart(0)
+  createChart(0, timeSpan)
   createShown(pos, span)
   if(pos+span<keys.length){document.getElementById("next").classList.remove('disabled')}
 }
@@ -534,7 +548,7 @@ async function getUpdatedSingle() {
         studData[key][0]=studData[key][0].concat(value[0])
         studData[key][1]=studData[key][1].concat(value[1])
     }
-    createChart(0)
+    createChart(0, timeSpan)
     createShown(pos, span)
     if(pos+span<keys.length){document.getElementById("next").classList.remove('disabled')}
 }
@@ -577,17 +591,35 @@ async function showContent(outputSpan) {
  * Generiert die Werte für den Graphen
  * @param {*} outputSpan    -   Die Position an Duchläufen, die ausgegeben wird
  */
-async function createChart(outputSpan){
-kArray = new Array();
-rArray = new Array();
-wArray = new Array();
-let index = 0
-for (const [key, value] of Object.entries(studData)) {
-    kArray[index]=index+1
-    rArray[decript(key)-1]=value[0].length
-    wArray[decript(key)-1]=value[1].length
-    index++
-}
+async function createChart(outputSpan, timeParam){
+
+    const aktTime = new Date()
+    const dateOffset = (24*60*60*1000)*timeParam
+
+    aktTime.setTime(aktTime.getTime()-dateOffset)
+
+    function filterFun(dateString){
+        const tempDate = new Date(dateString)
+        if(tempDate >= aktTime){
+            return true;
+        }
+        return false;
+    }
+
+    kArray = new Array();
+    rArray = new Array();
+    wArray = new Array();
+    let index = 0
+    for (const [key, value] of Object.entries(studData)) {
+        kArray[index]=index+1
+        
+        const rFinal = value[0].filter(element => filterFun(element))
+        const lFinal = value[1].filter(element => filterFun(element))
+        
+        rArray[decript(key)-1]=rFinal.length
+        wArray[decript(key)-1]=lFinal.length
+        index++
+    }
 
 kArray = kArray.slice(outputSpan, span+outputSpan)
 rArray = rArray.slice(outputSpan, span+outputSpan)
@@ -637,7 +669,7 @@ async function toggleGraphSetting(){
     }else{
         document.getElementById("switchGraphMode").innerHTML = "Prozent"
     }
-    createChart(pos)
+    createChart(pos, timeSpan)
 }
 
 /**
@@ -645,7 +677,7 @@ async function toggleGraphSetting(){
  */
 async function changeNext(){
     if( !document.getElementById("next").classList.contains('disabled')){
-        createChart(pos+span)
+        createChart(pos+span, timeSpan)
         document.getElementById("prev").classList.remove('disabled')
         if(pos+span>=keys.length){document.getElementById("next").classList.add('disabled')}
         createShown(pos, span)
@@ -653,7 +685,7 @@ async function changeNext(){
 }
 async function changePrevious(){
     if(!document.getElementById("prev").classList.contains('disabled')){
-        createChart(pos-span)
+        createChart(pos-span, timeSpan)
         document.getElementById("next").classList.remove('disabled')
         if(pos-span<0){document.getElementById("prev").classList.add('disabled')}
         createShown(pos, span)
@@ -874,4 +906,34 @@ async function checkOutdated(fileName = tag){
         }
     })
     //client.putFileContents("/" + fileName + ".json", JSON.stringify(localData))
+}
+
+
+
+async function toggleDropDown(){
+    const x = document.querySelector('.dropdown-menu')
+    if(x.style.display == "none"){
+        x.style.display = "block"
+    }else{
+        x.style.display = "none"
+    }
+}
+
+async function execDropDown(timeValue){
+    document.querySelector('.dropdown-menu').style = "display:none" 
+    timeSpan = timeValue
+    createChart(pos, timeSpan)
+    let selector = 'timeAll'
+    switch (timeValue){
+        case 365:
+            selector = 'timeAll'
+            break;
+        case 30:
+            selector = 'timeThirty'
+            break;
+        case 7:
+            selector = 'timeSeven'
+            break;
+    } 
+    document.querySelector('#dropdownbtn').innerHTML = document.querySelector('#'+selector).innerHTML
 }

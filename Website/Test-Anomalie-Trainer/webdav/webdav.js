@@ -19,7 +19,7 @@ const tableShow = true;
  * @param {true} dataAll    -   Ergebnisse aller Studenten werden zusammen angezeigt
  * @param {false} dataAll   -   Ergebnisse des bearbeitenden Studenten werden angezeigt
  */
-const dataAll = false;
+const dataAll = true;
 
 /**
  * URL zum WebDav-Ordner
@@ -61,6 +61,7 @@ const testData = {
 }
 
 
+
 //Das erste Popup für den Login wird gerendert
 createPopup();
 
@@ -69,7 +70,7 @@ createPopup();
  * Fügt den ModalDialog in die Webseite ein
  */
 async function createPopup(){
-    let m = `
+    const m = `
   <div class="modal show" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" style="display: block;overflow: auto">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -106,7 +107,7 @@ async function createPopup(){
  */
 async function userDataPlot(){
     document.getElementById("myModal").innerHTML = ''
-    let dataPop = `
+    const dataPop = `
     <div class="modal-dialog" role="document" style="min-width:500px;max-width:1000px">
       <div class="modal-content">
         <div class="modal-header">
@@ -126,6 +127,10 @@ async function userDataPlot(){
  * @returns {boolean}   -   Annnmeldevorgang erfolgreich
  */
 async function login() {
+    if(document.getElementById("StudData").value==""||document.getElementById("StudPw").value.toString()==""){
+        document.getElementById("errorMessage").style.display = "block";
+        return false
+    }
     tag = hash(document.getElementById("StudData").value+document.getElementById("StudPw").value.toString())
     try{
         initCon(document.getElementById("StudData"), document.getElementById("StudPw"))  
@@ -169,21 +174,21 @@ async function call() {
     try { await client.getFileContents("/" + tag + ".json", { format: "text" }) }
     catch (e) {
         console.log("User Directory needs to be created")
-        data = `{
-            "lost":  [
+        const defaultdata = {
+            lost:  [
                 [],
                 []
             ],
-            "read":  [
+            read:  [
                 [],
                 []
             ],
-            "dirty": [
+            dirty: [
                 [],
                 []
             ]
-        }`
-        client.putFileContents("/" + tag + ".json", data)
+        }
+        await client.putFileContents("/" + tag + ".json", JSON.stringify(defaultdata))
     }
 }  
 
@@ -194,10 +199,11 @@ async function call() {
  * @param {String} datePhrase       -   Datum als String
  */
 async function insertRun(trainerKey, resultPhrase, datePhrase) {
-    let data = JSON.parse(await client.getFileContents("/" + tag + ".json", { format: "text" })) 
+    const dataRaw = client.getFileContents("/" + tag + ".json", { format: "text" }) 
+    const data = JSON.parse(dataRaw)
     const resultIndex = resultPhrase ?  0 : 1
     switch (trainerKey) {
-        case 'Lost Update':
+        case "Lost Update":
             data.lost[resultIndex].push(datePhrase) 
             break;
         case "Non-Repeatable Read":
@@ -209,7 +215,7 @@ async function insertRun(trainerKey, resultPhrase, datePhrase) {
         default:
     }
     try{
-        client.putFileContents("/" + tag + ".json", JSON.stringify(data))       
+        await client.putFileContents("/" + tag + ".json", JSON.stringify(data))       
     } catch(error){
     }             
 }
@@ -515,10 +521,10 @@ async function getUpdatedAll() {
   readArr = [[],[]]
   dirtyArr = [[],[]]
   const directoryItems = await client.getDirectoryContents("/")
-  studData.length = directoryItems.length-1
-  for (let i = 0; i < directoryItems.length-1; i++) {
+  studData.length = directoryItems.length
+  for (let i = 0; i < directoryItems.length; i++) {
       const tempName = directoryItems[i].filename
-      let tempData = await client.getFileContents("/" + tempName, { format: "text" });
+      let tempData = await client.getFileContents("/" + tempName, { format: "text" })
       tempData = JSON.parse(tempData)
       //Test für example Data
       //let tempData = testData
@@ -541,8 +547,7 @@ async function getUpdatedAll() {
  * Importiert nur Nutzerdaten aus dem Ergebniss-Ordner, die den Login-Daten des einzelnen Studenten zugeordnet werden können 
  */
 async function getUpdatedSingle() {
-      let tempData = await client.getFileContents("/" + tag + ".json", { format: "text" });
-      tempData = JSON.parse(tempData)
+      const tempData = JSON.parse(await client.getFileContents("/" + tag + ".json", { format: "text" }));
       //Test für example Data
       //let tempData = testData
       try {
@@ -711,7 +716,7 @@ async function toggleDropDown(){
 async function execDropDown(timeValue){
     document.querySelector('.dropdown-menu').style = "display:none" 
     timeSpan = timeValue
-    createChart(0, timeSpan)
+    createChart(pos, timeSpan)
     selector = 'timeAll'
     switch (timeValue){
         case 365:

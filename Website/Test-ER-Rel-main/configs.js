@@ -77,7 +77,7 @@ export const config = {
     phrase.key = phrase.entities.concat(phrase.solution).join('_');
 
     const date = new Date();
-    const dateKey = date.getDate().toString()+"_"+(date.getMonth()+1).toString()
+    const dateKey = date.getFullYear().toString()+"-"+date.getDate().toString()+"-"+(date.getMonth()+1).toString()
     //insertRun(results, dateKey);
   },
   "onstart": async fun => {
