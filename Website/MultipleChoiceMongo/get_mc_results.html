@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<script src="https://ccmjs.github.io/ccm/ccm.js"></script>
+<script>
+  ( async () => {
+
+   
+
+    const store = await ccm.store( { url: 'https://ccm2.inf.h-brs.de', name: 'dbs-ss23-mc-results' } );
+    const datasets = await store.get( {} );
+    console.log( 'datasets', datasets );
+  } )();
+</script>
+
+<!--
+Stores:
+- dbs-ss22-mc-results (SoSe 2022)
+- dbs-ws22-mc-results (WiSe 2022/23)
+- dbs-ss23-mc-results (SoSe 2023)
+- mc_results (current WiSe 2023/24)
+-->
+
+
+<!--Analytics Componente: github.com/ccmjs/eild/tree/main/mc_analytics-->

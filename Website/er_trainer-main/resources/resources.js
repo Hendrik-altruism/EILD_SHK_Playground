@@ -10,15 +10,9 @@
  */
 export const config = {
   "css.1.1": "./resources/styles.css",  // (austauschbares) Layout
-  "libs": ["ccm.load",
-    ["./libs/webdav/dexie.min.js",
-      "./libs/webdav/indexed.index.js",
-      "./libs/webdav/download.min.js",
-      "./libs/webdav/web.index.js",
-      "./libs/webdav/webdav.js"]],
   "feedback": true,       // Zu jeder abgeschickten Phrase gibt es ein direktes Feedback
   "legend": true,         // Aufrufbare Legende mit einer Übersicht aller Notationen
-  //"number": 5,            // Anzahl zufällig abgefragter Phrasen (keine Angabe: alle Phrasen)
+//"number": 5,            // Anzahl zufällig abgefragter Phrasen (keine Angabe: alle Phrasen)
   "retry": true,          // Eine Phrase kann nachträglich korrigiert werden.
   "skip": true,           // Eine Phrase kann übersprungen werden
   "show_solution": true,  // Aufrufbare Musterlösung
@@ -27,31 +21,23 @@ export const config = {
 
   // Die Ergebnisse werden offline-fähig lokal gespeichert und man kann dort weitermachen, wo man das letzte Mal aufgehört hat.
   "data": {
-    "store": ["ccm.store", { "name": "eild" }],
+    "store": [ "ccm.store", { "name": "eild" } ],
     "key": "er_trainer"
   },
   "onchange": async event => {
-    if (event.event !== 'next') return;
+    if ( event.event !== 'next' ) return;
     const results = event.instance.getValue();
-
-    const phrase = results.phrases[event.phrase - 2];
-    phrase.key = event.instance.helper.toKey(phrase.entities.concat(phrase.relation, phrase.solution).join('_'));
-
     results.sections.pop();
-    console.log(results)
-    insertRun(results)
-    findPhrase(Haus_Aufzug_hat_c_1)
-    event.instance.helper.onFinish({
+    event.instance.helper.onFinish( {
       store: {
         settings: { name: 'eild' },
         key: 'er_trainer'
       }
-    }, results);
+    }, results );
   },
   "onfinish": {
-    "log": console.log("finished"),
-    "callback": async (results, instance) => {
-      await instance.data.store.del(instance.data.key);
+    "callback": async ( results, instance ) => {
+      await instance.data.store.del( instance.data.key );
       instance.start();
     }
   }
@@ -64,9 +50,9 @@ export const config = {
 export const phrases = [
   {
     "text": "Im Krankenhaus gibt es zu jedem Patienten eine Patientenakte.",
-    "entities": ["Patient", "Patientenakte"],
+    "entities": [ "Patient", "Patientenakte" ],
     "relation": "hat",
-    "solution": ["1", "1"],
+    "solution": [ "1", "1" ],
     "comments": [
       "Zu jedem Patienten gibt es genau eine Patientenakte.",
       "Zu jeder Patientenakte gibt es genau einen Patienten."
@@ -74,9 +60,9 @@ export const phrases = [
   },
   {
     "text": "Im Chemielabor werden die Atomkerne von Atomen untersucht.",
-    "entities": ["Atom", "Atomkern"],
+    "entities": [ "Atom", "Atomkern" ],
     "relation": "hat",
-    "solution": ["1", "1"],
+    "solution": [ "1", "1" ],
     "comments": [
       "Jedes Atom hat genau einen Atomkern.",
       "Jeder Atomkern gehört zu genau einem Atom."
@@ -84,9 +70,9 @@ export const phrases = [
   },
   {
     "text": "Auf einer Konferenz sollen die Teilnehmer die Möglichkeit haben beim Einlass ein Namensschild zu bekommen.",
-    "entities": ["Namensschild", "Teilnehmer"],
+    "entities": [ "Namensschild", "Teilnehmer" ],
     "relation": "gehört zu",
-    "solution": ["1", "c"],
+    "solution": [ "1", "c" ],
     "comments": [
       "Jedes Namensschild gehört zu genau einem Teilnehmer.",
       "Ein Teilnehmer hat ein oder kein Namensschild."
@@ -94,9 +80,9 @@ export const phrases = [
   },
   {
     "text": "Bei einer Verkehrssimulation soll ein Fahrzeug auch einen Anhänger haben können.",
-    "entities": ["Anhänger", "Fahrzeug"],
+    "entities": [ "Anhänger", "Fahrzeug" ],
     "relation": "gehört zu",
-    "solution": ["1", "c"],
+    "solution": [ "1", "c" ],
     "comments": [
       "Ein Anhänger gehört zu genau einem Fahrzeug.",
       "Ein Fahrzeug hat einen oder keinen Anhänger."
@@ -104,9 +90,9 @@ export const phrases = [
   },
   {
     "text": "Für eine Stadtverwaltung soll es möglich sein auch eventuelle Bahnhöfe einer Stadt zu erfassen.",
-    "entities": ["Bahnhof", "Stadt"],
+    "entities": [ "Bahnhof", "Stadt" ],
     "relation": "gehört zu",
-    "solution": ["1", "cn"],
+    "solution": [ "1", "cn" ],
     "comments": [
       "Ein Bahnhof gehört zu genau einer Stadt.",
       "Eine Stadt hat keinen, einen oder mehrere Bahnhöfe."
@@ -114,9 +100,9 @@ export const phrases = [
   },
   {
     "text": "Ein Hausbesitzer möchte erfassen, wer gerade in seinen beiden Häusern wohnt.",
-    "entities": ["Bewohner", "Haus"],
+    "entities": [ "Bewohner", "Haus" ],
     "relation": "wohnt in",
-    "solution": ["1", "cn"],
+    "solution": [ "1", "cn" ],
     "comments": [
       "Ein Bewohner wohnt in genau einem Haus.",
       "Ein Haus hat keinen, einen oder mehrere Bewohner."
@@ -124,9 +110,9 @@ export const phrases = [
   },
   {
     "text": "Das Vereinswesen in Deutschland möchte eine Liste aller Vereine verwalten. Zu jedem Verein soll auch eine Kontaktperson eingetragen sein, wobei manche Vereine die gleiche Kontaktperson angeben.",
-    "entities": ["Verein", "Kontaktperson"],
+    "entities": [ "Verein", "Kontaktperson" ],
     "relation": "hat",
-    "solution": ["1", "n"],
+    "solution": [ "1", "n" ],
     "comments": [
       "Ein Verein hat genau eine Kontaktperson.",
       "Eine eingetragene Kontaktperson gehört zu mindestens einem Verein."
@@ -134,9 +120,9 @@ export const phrases = [
   },
   {
     "text": "Ein Radiosender für klassische Musik möchte eine Datensammlung von Musikstücken aufbauen, wobei für jedes Musikstück auch Hintergrundinformationen zum Komponisten abrufbar sein sollen.",
-    "entities": ["Musikstück", "Komponist"],
+    "entities": [ "Musikstück", "Komponist" ],
     "relation": "hat",
-    "solution": ["1", "n"],
+    "solution": [ "1", "n" ],
     "comments": [
       "Ein Musikstück hat genau einen Komponisten.",
       "Zu jedem Komponisten in der Datensammlung gibt es mindestens ein Musikstück."
@@ -144,9 +130,9 @@ export const phrases = [
   },
   {
     "text": "Eine Mensa möchte ihren Bestand an Töpfen (inkl. Pfannen) nachhalten, um schneller festzustellen, ob etwas fehlt und nachgekauft werden muss. Die Deckel sollen separat erfasst werden, da diese auch einzeln nachbestellbar sind. Zu jedem Topf gibt es einen Deckel, es gibt allerdings auch Töpfe ohne Deckel (z.B. Wok).",
-    "entities": ["Topf", "Deckel"],
+    "entities": [ "Topf", "Deckel" ],
     "relation": "hat",
-    "solution": ["c", "1"],
+    "solution": [ "c", "1" ],
     "comments": [
       "Ein Topf hat einen oder keinen Deckel.",
       "Ein Deckel gehört zu genau einem Topf."
@@ -154,9 +140,9 @@ export const phrases = [
   },
   {
     "text": "Bei der Bauplanung eines Mehrfamilienhauses soll für einen entsprechenden Aufpreis auch ein Fahrstuhl möglich sein.",
-    "entities": ["Haus", "Aufzug"],
+    "entities": [ "Haus", "Aufzug" ],
     "relation": "hat",
-    "solution": ["c", "1"],
+    "solution": [ "c", "1" ],
     "comments": [
       "Ein Haus hat einen oder keinen Aufzug.",
       "Ein Aufzug gehört zu genau einem Haus."
@@ -164,29 +150,29 @@ export const phrases = [
   },
   {
     "text": "Bei der Genforschung werden Chromosome und deren spezifische Merkmale untersucht, wobei sich während der Studie ein X-Chromosom mit einem X- oder Y-Chromosom verbinden kann und ein Y-Chromosom nur mit einem X-Chromosom.",
-    "entities": ["X-Chromosom", "Y-Chromosom"],
+    "entities": [ "X-Chromosom", "Y-Chromosom" ],
     "relation": "verbunden",
-    "solution": ["c", "c"],
+    "solution": [ "c", "c" ],
     "comments": [
       "Ein X-Chromosom ist mit einem oder keinem Y-Chromosom verbunden.",
       "Ein Y-Chromosom ist mit einem oder keinem X-Chromosom verbunden."
     ]
   },
   {
-    "text": "Beim Standesamt wird verwaltet, welche Personen gerade miteinander verheiratet sind.",
-    "entities": ["Person", "Person"],
-    "relation": "verheiratet",
-    "solution": ["c", "c"],
+    "text": "Für eine Fortpflanzungsstudie soll verwaltet werden, ob und wenn ja mit welchem Männchen ein Weibchen aktuell zusammen ist. Männchen und Weibchen der untersuchten Tierart haben nie mehrere Partner gleichzeitig.",
+    "entities": [ "Weibchen", "Männchen" ],
+    "relation": "ist zusammen mit",
+    "solution": [ "c", "c" ],
     "comments": [
-      "Eine Person kann höchstens mit einer anderen Person verheiratet sein.",
-      "Eine Person kann höchstens mit einer anderen Person verheiratet sein.",
+      "Ein Weibchen ist entweder mit einem oder keinem Männchen zusammen sein.",
+      "Ein Männchen ist entweder mit einem oder keinem Weibchen zusammen sein."
     ]
   },
   {
     "text": "Bei einem Winzer gehört eine Weinflasche zu einer Weinsorte oder ist selbstgebraut.",
-    "entities": ["Weinflasche", "Weinsorte"],
+    "entities": [ "Weinflasche", "Weinsorte" ],
     "relation": "gehört zu",
-    "solution": ["c", "cn"],
+    "solution": [ "c", "cn" ],
     "comments": [
       "Eine Weinflasche gehört zu genau einer oder keiner Weinsorte.",
       "Von einer Weinsorte hat ein Winzer entweder keine, eine oder mehrere Weinflaschen."
@@ -194,9 +180,9 @@ export const phrases = [
   },
   {
     "text": "Bei der Insektenforschung soll festgehalten werden, ob die Insekten im Labor Flügel haben oder nicht.",
-    "entities": ["Insekt", "Flügel"],
+    "entities": [ "Insekt", "Flügel" ],
     "relation": "hat",
-    "solution": ["c", "cn"],
+    "solution": [ "c", "cn" ],
     "comments": [
       "Ein Insekt hat entweder Flügel oder keine Flügel.",
       "Im Labor gibt es kein, ein oder mehrere Insekten mit Flügeln."
@@ -204,29 +190,29 @@ export const phrases = [
   },
   {
     "text": "Der deutsche Staat möchte transparent machen, welcher Bürger welcher Partei angehört.",
-    "entities": ["Bürger", "Partei"],
+    "entities": [ "Bürger", "Partei" ],
     "relation": "ist Mitglied in",
-    "solution": ["c", "n"],
+    "solution": [ "c", "n" ],
     "comments": [
       "Ein Bürger kann nur Mitglied in maximal einer Partei gleichzeitig sein.",
       "Eine Partei hat eine Mindestzahl an Mitgliedern."
     ]
   },
   {
-    "text": "Bei einer Schiffssimulation soll protokolliert werden, ob und wie häufig ein Schiff unter einer bestimmten Flagge segelt. Zu diesem Zweck sollen nun auch Flaggen im System als eigene Entität verwaltet werden.",
-    "entities": ["Schiff", "Flagge"],
-    "relation": "segelt unter",
-    "solution": ["c", "n"],
+    "text": "Bei einer Tierbeobachtung soll erfasst werden, welche der Tiere sich zu einer Herde zusammenschließen.",
+    "entities": [ "Tier", "Herde" ],
+    "relation": "gehört zu",
+    "solution": [ "c", "n" ],
     "comments": [
-      "Ein Schiff kann immer nur unter maximal einer Flagge gleichzeitig segeln.",
-      "Eine protokollierte Flagge wurde von mindestens einem Schiff genutzt."
+      "Ein Tier gehört entweder zu einer oder keiner Herde.",
+      "Eine Herde besteht aus mindestens einem Tier."
     ]
   },
   {
     "text": "Bei einer Weltraumsimulation kann ein Planet Monde haben, die ihn umkreisen.",
-    "entities": ["Planet", "Mond"],
+    "entities": [ "Planet", "Mond" ],
     "relation": "hat",
-    "solution": ["cn", "1"],
+    "solution": [ "cn", "1" ],
     "comments": [
       "Ein Planet hat keinen, einen oder mehrere Monde.",
       "Ein Mond gehört immer zu genau einem Planeten."
@@ -234,9 +220,9 @@ export const phrases = [
   },
   {
     "text": "Der öffentliche Dienst möchte seine aktuell an Firmen vergebenen Aufträge verwalten.",
-    "entities": ["Firma", "Auftrag"],
+    "entities": [ "Firma", "Auftrag" ],
     "relation": "hat",
-    "solution": ["cn", "1"],
+    "solution": [ "cn", "1" ],
     "comments": [
       "Eine Firma hat aktuell keinen, einen oder mehrere Aufträge.",
       "Ein vergebener Auftrag gehört zu genau einer Firma."
@@ -244,9 +230,9 @@ export const phrases = [
   },
   {
     "text": "In einem Point-and-Click-Adventure soll die Spielfigur ein Inventar für gesammelte Gegenstände haben.",
-    "entities": ["Inventar", "Gegenstand"],
+    "entities": [ "Inventar", "Gegenstand" ],
     "relation": "enthält",
-    "solution": ["cn", "c"],
+    "solution": [ "cn", "c" ],
     "comments": [
       "Im Inventar sind kein, ein oder mehrere Gegenstände enthalten.",
       "Ein Gegenstand ist im Inventar entweder enthalten oder nicht."
@@ -254,9 +240,9 @@ export const phrases = [
   },
   {
     "text": "In einem Projektmanagement-Tool sollen Aufgaben einem Mitarbeiter hauptverantwortlich zugewiesen werden können.",
-    "entities": ["Mitarbeiter", "Aufgabe"],
+    "entities": [ "Mitarbeiter", "Aufgabe" ],
     "relation": "ist zuständig für",
-    "solution": ["cn", "c"],
+    "solution": [ "cn", "c" ],
     "comments": [
       "Ein Mitarbeiter ist zuständig für keine, eine, oder mehrere Aufgaben.",
       "Eine Aufgabe kann maximal einem Mitarbeiter hauptverantwortlich zugewiesen sein."
@@ -264,9 +250,9 @@ export const phrases = [
   },
   {
     "text": "Bei einem Onlinehändler sollen Kunden Produkte bestellen und sich vorab schon Registrieren können.",
-    "entities": ["Kunde", "Produkt"],
+    "entities": [ "Kunde", "Produkt" ],
     "relation": "bestellt",
-    "solution": ["cn", "cn"],
+    "solution": [ "cn", "cn" ],
     "comments": [
       "Ein Kunde hat kein, ein oder mehrere Produkte bestellt.",
       "Ein Produkt wurde von keinem, einem oder mehreren Kunden bestellt."
@@ -274,53 +260,19 @@ export const phrases = [
   },
   {
     "text": "Im neuen Gesundheitszentrum soll am Ende jedes Kurses jeder Teilnehmer eine vorab vorbereitete Teilnahmebescheinigung erhalten.",
-    "entities": ["Teilnehmer", "Bescheinigung"],
+    "entities": [ "Teilnehmer", "Bescheinigung" ],
     "relation": "erhalten",
-    "solution": ["cn", "cn"],
+    "solution": [ "cn", "cn" ],
     "comments": [
       "Ein Teilnehmer hat keine, eine oder mehrere Teilnahmebescheinigungen erhalten.",
       "Eine Bescheinigung wurde entweder noch gar nicht, einmal oder mehrmals an Teilnehmer ausgestellt."
     ]
   },
   {
-    "text": "In einer neuen Hochschule sollen nun Studenten Lehrveranstaltungen besuchen und am Ende des Semesters von einem Professor geprüft werden.",
-    "entities": ["Student", "Professor", "Lehrveranstaltung"],
-    "relation": "wird geprüft",
-    "solution": ["cn", "cn", "cn"],
-    "comments": [
-      "Ein Student wurde entweder noch gar nicht, einmal oder bereits mehrmals geprüft.",
-      "Ein Professor hat entwerder noch gar nicht, einmal oder bereits mehrmals geprüft.",
-      "In einer Lehrveranstaltung wurde noch gar nicht, einmal oder bereits mehrmals geprüft."
-    ]
-  },
-  {
-    "text": "Eine Fluggesellschaft möchte protokollieren, welche Piloten mit welchen Flugzeugen auf welchen Flugrouten eingesetzt werden. Bisher wurden im System nur Piloten und Flugzeuge verwaltet.",
-    "entities": ["Pilot", "Flugzeug", "Flugroute"],
-    "relation": "eingesetzt",
-    "solution": ["cn", "cn", "n"],
-    "comments": [
-      "Ein Pilot wurde bisher gar nicht, einmal oder mehrmals mit einem Flugzeug auf einer Flugroute eingesetzt.",
-      "Ein Flugzeug wurde bisher gar nicht, einmal oder mehrmals von einem Piloten auf einer Flugroute eingesetzt.",
-      "Eine protokollierte Flugroute wurde mindestens einmal von einem Piloten mit einem Flugzeug bedient."
-    ]
-  },
-  {
-    "text": "Es soll protokolliert werden, welche Veranstaltung an welcher Location mit welchen Teilnehmern mit welchen Sponsoren stattgefunden hat. Bisher wurden im System nur die Veranstaltungen und ihre Locations verwaltet.",
-    "entities": ["Veranstaltung", "Location", "Teilnehmer", "Sponsor"],
-    "relation": "findet statt",
-    "solution": ["cn", "cn", "n", "n"],
-    "comments": [
-      "Eine Veranstaltung wurde bisher gar nicht, einmal oder bereits mehrmals protokolliert.",
-      "Eine Location wurde bisher gar nicht, einmal oder bereits mehrmals protokolliert.",
-      "Ein protokollierter Teilnehmer hat mindestens an einer Veranstaltung teilgenommen.",
-      "Ein protokollierter Sponsor hat sich an mindestens einer Veranstaltung beteiligt."
-    ]
-  },
-  {
     "text": "In einem Sprachenzentrum soll gespeichert werden, welche der zu unterrichtenden Sprachen von welchen Dozenten gesprochen werden. Jeder Dozent beherrscht mindestens eine der Sprachen, zeitweise kann es aber passieren, dass es zu einer Sprachen keinen Dozenten gibt.",
-    "entities": ["Sprache", "Dozent"],
+    "entities": [ "Sprache", "Dozent" ],
     "relation": "gesprochen von",
-    "solution": ["cn", "n"],
+    "solution": [ "cn", "n" ],
     "comments": [
       "Eine Sprache wird von keinem, einem oder mehreren Dozenten gesprochen.",
       "Ein Dozent beherrscht mindestens eine der zu unterrichtenden Sprachen."
@@ -328,30 +280,19 @@ export const phrases = [
   },
   {
     "text": "Beim Einwohnermeldeamt muss jeder Bürger seinen Wohnsitz anmelden. Obdachlose werden als 'ohne festen Wohnsitz' geführt und es können neben dem Hauptwohnsitz auch weitere Nebenwohnsitze gemeldet werden.",
-    "entities": ["Bürger", "Wohnsitz"],
+    "entities": [ "Bürger", "Wohnsitz" ],
     "relation": "meldet an",
-    "solution": ["cn", "n"],
+    "solution": [ "cn", "n" ],
     "comments": [
       "Ein Bürger hat keinen, einen oder mehrere Wohnsitze.",
       "Zu einem gemeldeten Wohnsitz gibt es mindestens einen Bürger, der dort wohnhaft ist."
     ]
   },
   {
-    "text": "Ein Team von Programmierern möchte den Quelltext ihrer Programme versionieren, so dass bei jedem Speichern von Änderungen automatisch eine neue Version vom Quelltext separat gespeichert wird.",
-    "entities": ["Programmierer", "Quelltext", "Version"],
-    "relation": "speichert",
-    "solution": ["cn", "n", "1"],
-    "comments": [
-      "Ein Programmierer hat noch keine, eine oder bereits mehrere Versionen des Quelltexts gespeichert.",
-      "Zu einem gespeicherten Quelltext gibt es mindestens eine Version und einen Programmierer.",
-      "Zu einer Version gibt es genau einen zugehörigen Quelltext und Programmierer."
-    ]
-  },
-  {
     "text": "Eine Bibliothek möchte die einzelnen Seiten ausgewählter Bücher digitalisieren.",
-    "entities": ["Buch", "Seite"],
+    "entities": [ "Buch", "Seite" ],
     "relation": "hat",
-    "solution": ["n", "1"],
+    "solution": [ "n", "1" ],
     "comments": [
       "Ein Buch hat mehrere Seiten.",
       "Eine Seite gehört zu genau einem Buch."
@@ -359,30 +300,19 @@ export const phrases = [
   },
   {
     "text": "Ein Architekt möchte wichtige Eckdaten zu den einzelnen individuellen Räumen seiner Gebäude verwalten.",
-    "entities": ["Gebäude", "Raum"],
+    "entities": [ "Gebäude", "Raum" ],
     "relation": "hat",
-    "solution": ["n", "1"],
+    "solution": [ "n", "1" ],
     "comments": [
       "Ein Gebäude hat mindestens einen Raum.",
       "Ein Raum gehört zu genau einem Gebäude."
     ]
   },
   {
-    "text": "Für ein Unternehmen sollen die Mitarbieter verwaltet werden, wobei jeder Mitarbeiter genau einen Vorgesetzten und jeder Vorgesetzte mindestens einen Mitarbeiter haben soll.",
-    "entities": ["Mitarbeiter", "Mitarbeiter"],
-    "roles": ["Vorgesetzter", ""],
-    "relation": "ist Chef von",
-    "solution": ["n", "1"],
-    "comments": [
-      "Ein Vorgesetzter hat mindestens einen Mitarbeiter.",
-      "Ein Mitarbeiter hat immer genau einen Vorgesetzten."
-    ]
-  },
-  {
     "text": "Für ein Forschungsprojekt sollen in einem Landkreis alle Bäume und Wälder erfasst werden.",
-    "entities": ["Wald", "Baum"],
+    "entities": [ "Wald", "Baum" ],
     "relation": "hat",
-    "solution": ["n", "c"],
+    "solution": [ "n", "c" ],
     "comments": [
       "Ein Wald besteht aus mehreren Bäumen.",
       "Ein Baum muss nicht zwingend zu einem Wald gehören und gehört wenn dann immer nur zu genau einem Wald."
@@ -390,9 +320,9 @@ export const phrases = [
   },
   {
     "text": "Die Deutsche Post möchte bei der teilautomatisierten Briefverarbeitung den Absender eines Briefs erfassen.",
-    "entities": ["Absender", "Brief"],
+    "entities": [ "Absender", "Brief" ],
     "relation": "notiert auf",
-    "solution": ["n", "c"],
+    "solution": [ "n", "c" ],
     "comments": [
       "Ein erfasster Absender ist auf mindestens einem Brief notiert gewesen.",
       "Ein Brief enthält entweder einen oder keinen Absender."
@@ -400,9 +330,9 @@ export const phrases = [
   },
   {
     "text": "Für ein Restaurant sollen die aktuell verwendeten Rezepte und die vorhandenen Zutaten verwaltet werden.",
-    "entities": ["Rezept", "Zutat"],
+    "entities": [ "Rezept", "Zutat" ],
     "relation": "hat",
-    "solution": ["n", "cn"],
+    "solution": [ "n", "cn" ],
     "comments": [
       "Ein Rezept hat immer mehrere Zutaten.",
       "Eine vorhandene Zutat wird in keinem, einem oder mehreren Rezepten verwendet."
@@ -410,9 +340,9 @@ export const phrases = [
   },
   {
     "text": "In einem App Store gibt es die Anforderung, dass für jede App mindestens eine von mehreren vordefinierten Kategorien angegeben werden muss.",
-    "entities": ["App", "Kategorie"],
+    "entities": [ "App", "Kategorie" ],
     "relation": "hat",
-    "solution": ["n", "cn"],
+    "solution": [ "n", "cn" ],
     "comments": [
       "Für eine App muss mindestens eine Kategorie angegeben werden.",
       "Eine vordefinierte Kategorie wurde für keine, eine oder bereits für mehrere Apps angegeben."
@@ -420,9 +350,9 @@ export const phrases = [
   },
   {
     "text": "Ein Immobilienmakler möchte für seine verkauften Häuser die Kontaktdaten zu den neuen Eigentümern festhalten.",
-    "entities": ["Haus", "Eigentümer"],
+    "entities": [ "Haus", "Eigentümer" ],
     "relation": "hat",
-    "solution": ["n", "n"],
+    "solution": [ "n", "n" ],
     "comments": [
       "Ein Haus hat mindestens einen Eigentümer.",
       "Ein Eigentümer hat mindestens ein Haus."
@@ -430,39 +360,128 @@ export const phrases = [
   },
   {
     "text": "Im Rahmen eines chemischen Experiments sollen ausgewählte Atome, ihre Elektronen und deren Bindungsfähigkeit untersucht werden.",
-    "entities": ["Atom", "Elektron"],
+    "entities": [ "Atom", "Elektron" ],
     "relation": "hat",
-    "solution": ["n", "n"],
+    "solution": [ "n", "n" ],
     "comments": [
       "Ein Atom hat mindestens ein Elektron.",
       "Ein Elektron gehört zu einem oder mehreren Atomen (Elektronenpaarbindung)."
     ]
   },
   {
-    "text": "Für die Erstellung eines Verkehrsplans muss verwaltet werden, welche Haltestellen miteinander verbunden sind.",
-    "entities": ["Haltestelle", "Haltestelle"],
+    "text": "Beim Standesamt wird verwaltet, welche Personen gerade miteinander verheiratet sind.",
+    "entities": [ "Person", "Person" ],
+    "relation": "verheiratet",
+    "solution": [ "c", "c" ],
+    "comments": [
+      "Eine Person kann höchstens mit einer anderen Person verheiratet sein.",
+      "Eine Person kann höchstens mit einer anderen Person verheiratet sein.",
+    ]
+  },
+  {
+    "text": "Für die Darstellung von Dateiordnern soll verwaltet werden, welcher Ordner welche anderen Ordner enthält.",
+    "entities": [ "Ordner", "Ordner" ],
+    "roles": [ "Ordner", "Oberordner" ],
+    "relation": "enthält",
+    "solution": [ "c", "cn" ],
+    "comments": [
+      "Ein Ordner hat entweder keinen oder genau einen Oberordner.",
+      "Ein Oberordner enthält keinen, einen oder mehrere Unterordner."
+    ]
+  },
+  {
+    "text": "Für ein Unternehmen sollen die Mitarbeiter verwaltet werden, wobei jeder Mitarbeiter genau einen Vorgesetzten und jeder Vorgesetzte mindestens einen Mitarbeiter haben soll.",
+    "entities": [ "Mitarbeiter", "Mitarbeiter" ],
+    "roles": [ "", "Vorgesetzter" ],
+    "relation": "hat Vorgesetzten",
+    "solution": [ "1", "n" ],
+    "comments": [
+      "Ein Mitarbeiter hat immer genau einen Vorgesetzten.",
+      "Ein Vorgesetzter hat mindestens einen Mitarbeiter."
+    ]
+  },
+  {
+    "text": "Für die Erstellung eines Verkehrsplans muss verwaltet werden, welche Haltestellen miteinander verbunden sind. Durch Bauarbeiten und Umleitungen kann es zeitweise vorkommen, dass eine Haltestelle nicht angefahren wird.",
+    "entities": [ "Haltestelle", "Haltestelle" ],
     "relation": "verbunden",
-    "solution": ["cn", "cn"],
+    "solution": [ "cn", "cn" ],
     "comments": [
       "Eine Haltestelle ist mit keiner, einer oder mehreren anderen Haltestelle verbunden.",
       "Eine Haltestelle ist mit keiner, einer oder mehreren anderen Haltestelle verbunden."
     ]
   },
   {
-    "text": "Ein Kind hat eine (biologische) Mutter und einen (biologischen) Vater.",
-    "entities": ["Vater", "Mutter", "Kind"],
-    "relation": "hat",
-    "solution": ["n", "n", "1"],
+    "text": "In einer neuen Hochschule sollen Studenten Lehrveranstaltungen besuchen und am Ende des Semesters von einem Professor geprüft werden.",
+    "entities": [ "Student", "Professor", "Lehrveranstaltung" ],
+    "relation": "wird geprüft",
+    "solution": [ "cn", "cn", "cn" ],
     "comments": [
-      "Zu einem Vater gibt es genau eine Mutter und mindestens ein Kind.",
-      "Zu einer Mutter gibt es genau einen Vater und mindestens ein Kind.",
-      "Ein Kind hat genau eine Mutter und einen Vater."
+      "Ein Student wurde entweder noch gar nicht, einmal oder bereits mehrmals geprüft.",
+      "Ein Professor hat entweder noch gar nicht, einmal oder bereits mehrmals geprüft.",
+      "In einer Lehrveranstaltung wurde noch gar nicht, einmal oder bereits mehrmals geprüft."
+    ]
+  },
+  {
+    "text": "Eine Fluggesellschaft möchte protokollieren, welche Piloten mit welchen Flugzeugen auf welchen Flugrouten eingesetzt werden. Bisher wurden im System nur Piloten und Flugzeuge verwaltet, für das Protokoll nun auch Flugrouten.",
+    "entities": [ "Pilot", "Flugzeug", "Flugroute" ],
+    "relation": "eingesetzt",
+    "solution": [ "cn", "cn", "n" ],
+    "comments": [
+      "Ein Pilot wurde bisher gar nicht, einmal oder mehrmals mit einem Flugzeug auf einer Flugroute eingesetzt.",
+      "Ein Flugzeug wurde bisher gar nicht, einmal oder mehrmals von einem Piloten auf einer Flugroute eingesetzt.",
+      "Eine in der Datenbank vorhandene Flugroute wurde mindestens einmal von einem Piloten mit einem Flugzeug bedient."
+    ]
+  },
+  {
+    "text": "Ein Team von Programmierern möchte den Quelltext ihrer Programme versionieren, so dass bei jedem Speichern von Änderungen automatisch eine neue Version vom Quelltext separat gespeichert wird.",
+    "entities": [ "Programmierer", "Quelltext", "Version" ],
+    "relation": "speichert",
+    "solution": [ "cn", "n", "1" ],
+    "comments": [
+      "Ein Programmierer hat noch keine, eine oder bereits mehrere Versionen eines Quelltexts gespeichert.",
+      "Zu einem gespeicherten Quelltext gibt es mindestens eine Version und mindestens einen Programmierer.",
+      "Zu einer Version gibt es genau einen zugehörigen Quelltext und genau einen zugehörigen Programmierer."
+    ]
+  },
+  {
+    "text": "Eine Adoptionsstelle möchte für jedes Kind nachhalten, wer die biologische Mutter und werd der biologische Vater ist.",
+    "entities": [ "Vater", "Mutter", "Kind" ],
+    "relation": "hat",
+    "solution": [ "n", "n", "1" ],
+    "comments": [
+      "Zu einem Vater gibt es eine oder mehrere Mütter und mindestens ein Kind.",
+      "Zu einer Mutter gibt es einen oder mehrere Väter und mindestens ein Kind.",
+      "Ein Kind hat genau eine Mutter und genau einen Vater."
+    ]
+  },
+  {
+    "text": "Ein Gericht möchte die Gerichtsverhandlungen protokollieren, insbesondere wer bei einer Gerichtsverhandlung Angeklagter, Richter, Staatsanwalt und Verteidiger ist. Im System werden auch Richter und Staatsanwälte und Verteidiger verwaltet, die noch an keiner Gerichtsverhandlung teilgenommen haben.",
+    "entities": [ "Angeklagter", "Richter", "Staatsanwalt", "Verteidiger" ],
+    "relation": "beteiligt",
+    "solution": [ "n", "cn", "cn", "cn" ],
+    "comments": [
+      "Ein Angeklagter hat an mindestens einer Gerichtsverhandlungen teilgenommen.",
+      "Ein Richter hat an keine, eine oder mehrere Gerichtsverhandlungen geleitet.",
+      "Ein Staatsanwalt war bisher an keiner, einer oder mehreren Gerichtsverhandlungen beteiligt.",
+      "Ein Verteidiger war bisher an keiner, einer oder mehreren Gerichtsverhandlungen beteiligt."
+    ]
+  },
+  {
+    "text": "Über eine eigens dafür aufgesetzte Datenbank soll protokolliert werden, welche Veranstaltung an welcher Location mit welchen Teilnehmern mit welchen Sponsoren stattgefunden hat.",
+    "entities": [ "Veranstaltung", "Location", "Teilnehmer", "Sponsor" ],
+    "relation": "findet statt",
+    "solution": [ "n", "n", "n", "n" ],
+    "comments": [
+      "Eine in der Datenbank vorhandene Veranstaltung wurde mindestens einmal protokolliert.",
+      "Eine in der Datenbank vorhandene Location wurde bisher gar nicht, einmal oder bereits mehrmals protokolliert.",
+      "Ein in der Datenbank vorhandener Teilnehmer hat mindestens an einer Veranstaltung teilgenommen.",
+      "Ein in der Datenbank vorhandener Sponsor hat sich an mindestens einer Veranstaltung beteiligt."
     ]
   },
   {
     "text": "Ein Tierheim verwaltet Haustiere, die ein neues Zuhause suchen. Es handelt sich dabei vor allem um Hunde und Katzen.",
-    "entities": ["Haustier", "Hund", "Katze"],
-    "solution": ["p", "d"],
+    "entities": [ "Haustier", "Hund", "Katze" ],
+    "solution": [ "p", "d" ],
     "comments": [
       "Im Tierheim gibt es auch Haustiere, die weder Hund noch Katze sind.",
       "Es gibt keine Haustiere, die gleichzeitig Hund und Katze sind."
@@ -470,8 +489,8 @@ export const phrases = [
   },
   {
     "text": "Ein Versandhaus möchte verschiedene Paketdienstleister für die Zustellung ihrer Waren beauftragen. Pakete sollen vor allem über DHL, Hermes oder DPD versendet werden.",
-    "entities": ["Paketdienstleister", "DHL", "Hermes", "DPD"],
-    "solution": ["p", "d"],
+    "entities": [ "Paketdienstleister", "DHL", "Hermes", "DPD" ],
+    "solution": [ "p", "d" ],
     "comments": [
       "Aufträge können auch an andere Paketdienstleister vergeben werden (z.B. UPS).",
       "Ein Auftrag wird immer nur an einen Paketdienstleister vergeben."
@@ -479,26 +498,26 @@ export const phrases = [
   },
   {
     "text": "Verwaltet werden sollen die Besucher einer Gründermesse, auf der vor allem Unternehmensgründer und Sponsoren zusammenkommen.",
-    "entities": ["Besucher", "Gründer", "Sponsor"],
-    "solution": ["p", "n"],
+    "entities": [ "Besucher", "Gründer", "Sponsor" ],
+    "solution": [ "p", "n" ],
     "comments": [
       "Neben Gründer und Sponsoren können auch andere Personengruppen (z.B. Ideengeber) die Messe besuchen.",
       "Ein Gründer kann auch gleichzeitig ein Sponsor und ein Sponsor selbst auch ein Gründer sein."
     ]
   },
   {
-    "text": "Für eine Hundeshow sollen die teilnehmenden Hunde verwaltet werden. Zur Zeit sind vor allem Schäferhund, Mops und Dackel im Trend.",
-    "entities": ["Hund", "Schäferhund", "Mops", "Dackel"],
-    "solution": ["p", "n"],
+    "text": "Für eine Hundeshow sollen die teilnehmenden Hunde verwaltet werden. Zur Zeit sind vor allem Schäferhund, Mops und Dackel im Trend. Mischlinge aus diesen Rassen werden nicht als separate Hunderasse im System verwaltet.",
+    "entities": [ "Hund", "Schäferhund", "Mops", "Dackel" ],
+    "solution": [ "p", "n" ],
     "comments": [
-      "An der Hundeshow nehmen auch andere Hunderassen teil.",
-      "Neben den reinrassigen Hunden nehmen auch Mischlinge teil (z.B. ein Mops-Dackel-Mix)."
+      "An der Hundeshow nehmen auch vereinzelt andere Hunderassen teil, die weder Schäferhund, noch Mops oder Dackel sind.",
+      "Neben den reinrassigen Hunden nehmen auch Mischlinge teil (z.B. ein Mops-Dackel-Mix). Ein Hund kann daher auch mehreren Hunderassen angehören."
     ]
   },
   {
     "text": "Eine Adoptionsvermittlungsstelle möchte die Kontaktdaten der (biologischen) Eltern verwalten. Dabei sollen auch Vater- und Mutter-spezifische Merkmale erfasst und deshalb explizit zwischen beiden unterschieden werden.",
-    "entities": ["Elternteil", "Mutter", "Vater"],
-    "solution": ["t", "d"],
+    "entities": [ "Elternteil", "Mutter", "Vater" ],
+    "solution": [ "t", "d" ],
     "comments": [
       "Ein (biologischer) Elternteil ist entweder Mutter oder Vater.",
       "Ein Elternteil kann nicht gleichzeitig Vater und Mutter sein."
@@ -506,31 +525,31 @@ export const phrases = [
   },
   {
     "text": "Auf dem schnurlosen Haustelefon soll es im Adressbuch grundsätzlich drei Kategorien von Einträgen mit spezifischen Merkmalen geben: Privat, Arbeit und Mobil. Jeder Eintrag muss einer dieser Kategorien zugeordnet werden.",
-    "entities": ["Adressbuch", "Privat", "Arbeit", "Mobil"],
-    "solution": ["t", "d"],
+    "entities": [ "Adressbuch", "Privat", "Arbeit", "Mobil" ],
+    "solution": [ "t", "d" ],
     "comments": [
       "Jeder Adressbucheintrag muss einer der Kategorien zugeordnet werden.",
       "Ein Eintrag kann nur einer der Kategorien zugeordnet werden."
     ]
   },
   {
-    "text": "An einer Hochschule soll zwischen zwei Personengruppen unterschieden werden. Es gibt Studenten und alle anderen zählen als Mitarbeiter.",
-    "entities": ["Hochschulangehöriger", "Student", "Mitarbeiter"],
-    "solution": ["t", "n"],
+    "text": "An einer Hochschule soll zwischen zwei Personengruppen unterschieden werden: Es gibt nur Studenten und Mitarbeiter.",
+    "entities": [ "Hochschulangehöriger", "Student", "Mitarbeiter" ],
+    "solution": [ "t", "n" ],
     "comments": [
-      "Neben Studenten und Mitarbeitern gibt es keine anderen Personengruppen an der Hochschule.",
+      "Neben Studenten und Mitarbeitern werden keine anderen Personengruppen an der Hochschule verwaltet.",
       "Ein Student kann gleichzeitig auch ein Mitarbeiter (studentische Hilfskraft) und ein Mitarbeiter auch Student sein."
     ]
   },
   {
     "text": "Für ein Krankenhaus sollen die verschiedenen Personengruppen verwaltet werden. Unterschieden wird dabei zwischen Besuchern, Patienten und Personal.",
-    "entities": ["Person", "Besucher", "Patient", "Personal"],
-    "solution": ["t", "n"],
+    "entities": [ "Person", "Besucher", "Patient", "Personal" ],
+    "solution": [ "t", "n" ],
     "comments": [
       "Im Krankenhaus gibt es nur Besucher, Patienten und Personal. Andere Personengruppen können nicht vorkommen.",
       "Eine Person kann auch mehreren Personengruppen angehören. Jemand vom Personal kann z.B. auch Patient oder Besucher sein."
     ]
-  },
+  }
 ];
 
 /**
@@ -551,7 +570,7 @@ export const de = {
   "partial": "partiell",
   "phrase": "Phrase",
   "retry": "Korrigieren",
-  "selection": ["Bitte auswählen", "einfach", "bedingt", "mehrfach", "bedingt mehrfach"],
+  "selection": [ "Bitte auswählen", "einfach", "bedingt", "mehrfach", "bedingt mehrfach" ],
   "skip": "Überspringen",
   "solution": "Zeige Lösung",
   "submit": "Abschicken",
@@ -578,7 +597,7 @@ export const en = {
   "partial": "partial",
   "phrase": "Phrase",
   "retry": "Retry",
-  "selection": ["Please Choose", "simple", "conditional", "many", "conditional many"],
+  "selection": [ "Please Choose", "simple", "conditional", "many", "conditional many" ],
   "skip": "Skip",
   "solution": "Show Solution",
   "submit": "Submit",
@@ -595,7 +614,7 @@ export const notations = {
     "key": "abrial",
     "title": "Abrial",
     "centered": true,
-    "comment": "Die Abrial bzw. (min,max)-Notation gibt für jeden an einer Beziehung beteiligten Entitätstyp an, mit wie vielen Entitäten auf der anderen Seite eine Entität dieses Typs mindestens und höchstens in Beziehung steht."
+    "comment": "Die Abrial bzw. (min,max)-Notation gibt für jeden an einer Beziehung beteiligten Entitätentyp an, mit wie vielen Entitäten auf der anderen Seite eine Entität dieses Typs mindestens und höchstens in Beziehung steht."
   },
   "arrow": {
     "key": "arrow",
